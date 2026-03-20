@@ -50,12 +50,12 @@ lean_formalization/
 
 ### 其他章节 📅
 
-| 章节 | 状态 | 计划开始时间 |
-|------|------|-------------|
-| 第3章：流形学习 | 📋 计划中 | 2026 Q2 |
-| 第4章：概率流形 | 📋 计划中 | 2026 Q3 |
-| 第5章：神经网络架构 | 📋 计划中 | 2026 Q4 |
-| 第6-11章 | 📋 长期规划 | 2027+ |
+| 章节 | 状态 |
+|------|------|
+| 第3章：流形学习 | 📋 计划中 |
+| 第4章：概率流形 | 📋 计划中 |
+| 第5章：神经网络架构 | 📋 计划中 |
+| 第6-11章 | 📋 长期规划 |
 
 **整体进度**: 🟩 约 3% (1/30+ 主要定理已完成框架)
 
@@ -222,118 +222,19 @@ lake exe cache get
 lake env lean Chapter2/2_1/Chapter2_Exercise2_1_Working.lean
 ```
 
-### Q: 如何贡献代码？
-
-**A**: 欢迎贡献！请参考下面的"参与贡献"部分。
-
-## 开发路线图
-
-### 近期目标（2026 Q1-Q2）
-
-- [x] 完成项目架构设计
-- [x] 完成 2.1 练习框架（60%）
-- [ ] 填充 2.1 的完整证明（移除所有 `sorry`）
-- [ ] 实现 Courant-Fischer 定理
-- [ ] 开始 2.2-2.4 练习
-- [ ] 完成第2章所有练习的框架
-
-### 中期目标（2026 Q3-Q4）
-
-- [ ] 完成第2章所有定理的完整证明
-- [ ] 形式化幂迭代、FastICA 等算法
-- [ ] 开始第3章（流形学习）的形式化
-- [ ] 建立跨章节的理论库
-- [ ] 添加计算示例和可视化
-
-### 长期目标（2027+）
-
-- [ ] 完成前5章的形式化（线性方法到神经网络）
-- [ ] 形式化深度学习的主要定理
-- [ ] 连接到实际代码实现
-- [ ] 发布学术论文和教学材料
-- [ ] 建立社区贡献者生态
-
-## 参与贡献
-
-我们欢迎各种形式的贡献！
-
-### 如何贡献
-
-1. **填充证明**：选择一个带 `sorry` 的定理，尝试完成证明
-2. **添加新定理**：形式化书中尚未覆盖的定理
-3. **改进文档**：改善注释、添加示例、写教程
-4. **报告问题**：发现错误或不清晰的地方
-5. **优化代码**：重构代码以提高可读性或性能
-
-### 贡献流程
-
-1. Fork 本项目
-2. 创建特性分支 (`git checkout -b feature/amazing-proof`)
-3. 提交更改 (`git commit -m 'Add proof for theorem X'`)
-4. 推送到分支 (`git push origin feature/amazing-proof`)
-5. 创建 Pull Request
-
-### 贡献指南
-
-- 确保所有代码通过 `lake build` 检查
-- 添加详细的注释解释证明思路
-- 更新相关文档（README、注释等）
-- 遵循现有的代码风格
-
-### 适合新手的任务
-
-标记为 `good-first-issue` 的任务适合初学者：
-- 完成简单引理的证明
-- 改进现有代码的注释
-- 添加测试用例
-- 修正文档错误
-
-## 学习资源
-
-### Lean 4 学习
-
-- 📖 [Theorem Proving in Lean 4](https://leanprover.github.io/theorem_proving_in_lean4/) - 官方教程
-- 📖 [Mathematics in Lean](https://leanprover-community.github.io/mathematics_in_lean/) - 数学证明入门
-- 📖 [Functional Programming in Lean](https://leanprover.github.io/functional_programming_in_lean/) - 函数式编程
-- 🎥 [Lean 4 Tutorials (YouTube)](https://www.youtube.com/c/leanprovercommunity)
-
-### Mathlib 文档
-
-- 📚 [Mathlib4 Documentation](https://leanprover-community.github.io/mathlib4_docs/)
-- 📚 [Mathlib4 API Search](https://loogle.lean-lang.org/)
-- 📚 [Lean Zulip Chat](https://leanprover.zulipchat.com/) - 社区讨论
 
 ### 深度学习数学
 
-- 📖 《深度表征学习》原书
-- 📖 *Mathematics for Machine Learning* (Deisenroth et al.)
-- 📖 *Deep Learning* (Goodfellow et al.)
+- 📖 [《深度表征学习》原书](https://github.com/Ma-Lab-Berkeley/deep-representation-learning-book)
 
 ## 相关项目
 
 - [Lean 4 Official Repository](https://github.com/leanprover/lean4)
 - [Mathlib4](https://github.com/leanprover-community/mathlib4) - Lean 4 数学库
-- [Lean Game Server](https://adam.math.hhu.de/) - 交互式 Lean 游戏
-- [Formalized Mathematics](https://github.com/leanprover-community/formalizations) - 其他形式化项目
-
-## 致谢
-
-感谢所有为本项目做出贡献的开发者、数学家和机器学习研究者。
-
-特别感谢：
-- Lean 社区提供了强大的证明助手工具
-- Mathlib 团队维护了丰富的数学库
-- 《深度表征学习》作者提供了严谨的数学理论
 
 ## 许可证
 
 本项目遵循原书的许可协议。
-
-## 联系方式
-
-- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-repo/discussions)
-- **Email**: your-email@example.com
 
 ---
 
