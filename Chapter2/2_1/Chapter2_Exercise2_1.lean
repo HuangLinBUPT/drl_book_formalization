@@ -56,7 +56,7 @@ theorem principal_components_bound (hd : d ≤ D)
     exact ( hA.eigenvectorUnitary : Matrix ( Fin D ) ( Fin D ) ℝ );
     · simp +decide [ ← Matrix.ext_iff ];
       intro i j; have := hA.eigenvectorBasis.orthonormal; simp +decide [ orthonormal_iff_ite ] at this;
-      convert this i j using 1 ; simp +decide [ Matrix.mul_apply, inner ] ; ring!;
+      convert this i j using 1 ; simp +decide [ Matrix.mul_apply, inner ] ; ring_nf!;
       ac_rfl;
     · convert this using 1;
   -- Let $V = P^* U$ (matrix product). Since $P$ is unitary and $U$ has orthonormal columns ($U^* U = I$), $V$ also has orthonormal columns: $V^* V = U^* P P^* U = U^* U = I$ and $\text{tr}(V^* \text{diag}(\lambda) V) = \sum_{j=1}^D \lambda_j w_j$ where $w_j = \sum_{i=1}^d |V_{ji}|^2$.
@@ -71,10 +71,10 @@ theorem principal_components_bound (hd : d ≤ D)
       simp +zetaDelta at *; (
       simp +decide [ hP.2, Matrix.mul_assoc ])
     generalize_proofs at *; (
-    convert h_trace_expanded using 1 ; simp +decide [ Matrix.trace, Matrix.mul_apply, sq ] ; ring!;
-    simp +decide [ Matrix.mul_apply, sq, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ] ; ring!;
-    simp +decide [ Matrix.diagonal ] ; ring!;
-    exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_comm ) |> Eq.trans <| Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by ring;)
+    convert h_trace_expanded using 1 ; simp +decide [ Matrix.trace, Matrix.mul_apply, sq ] ; ring_nf!;
+    simp +decide [ Matrix.mul_apply, sq, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ] ; ring_nf!;
+    simp +decide [ Matrix.diagonal ] ; ring_nf!;
+    exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_comm ) |> Eq.trans <| Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => by ring_nf!;)
   generalize_proofs at *; (
   -- Since $V$ has orthonormal columns, we have $0 \leq w_j \leq 1$ for all $j$ and $\sum_{j=1}^D w_j = d$.
   have h_w_bounds : ∀ j, 0 ≤ ∑ i, V j i ^ 2 ∧ ∑ i, V j i ^ 2 ≤ 1 := by

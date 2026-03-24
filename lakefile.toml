@@ -1,15 +1,12 @@
-name = "pca-formalization"
+name = "drl-formalization"
 version = "0.1.0"
-defaultTargets = ["pca-formalization"]
+defaultTargets = ["drl-formalization"]
 
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4"
 rev = "v4.28.0"
 
-[[lean_lib]]
-name = "PcaFormalization"
-
 [[lean_exe]]
-name = "pca-formalization"
+name = "drl-formalization"
 root = "Main"
