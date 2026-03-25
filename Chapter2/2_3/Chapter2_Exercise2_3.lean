@@ -67,7 +67,9 @@ theorem GL_symmetry
     [Invertible A] :
     (U * A) * (⅟A * Z) = U * Z := by
   -- 由 Invertible A 的定义，A * ⅟A = 1
-  sorry
+  rw [Matrix.mul_assoc U A (⅟A * Z)]
+  rw [← Matrix.mul_assoc A ⅟A Z]
+  simp [Matrix.mul_inv_of_invertible A]
 
 end GL_Symmetry
 
@@ -152,15 +154,28 @@ theorem exercise_symmetry_identifiability
   set D1 := Matrix.diagonal D1_entries
   set D2 := Matrix.diagonal D2_entries
 
+  -- D1 和 D2 可逆（对角元素都为正）
+  -- 对于非零对角矩阵，逆矩阵是对角元素取倒数
+  have hD1_inv : Invertible D1 := sorry
+  have hD2_inv : Invertible D2 := sorry
+
   -- 5. 定义 Q = D1⁻¹ * A * D2⁻¹
+  haveI : Invertible D1 := hD1_inv
+  haveI : Invertible D2 := hD2_inv
   set Q := D1⁻¹ * A * D2⁻¹
 
   -- 6. 验证 A = D1 * Q * D2
   have hA_D1_Q_D2 : D1 * Q * D2 = A := by
     calc
-      D1 * Q * D2 = D1 * (D1⁻¹ * A * D2⁻¹) * D2 := by rfl
-      _ = (D1⁻¹ * D1) * A := by sorry
-      _ = A := by sorry
+      D1 * Q * D2
+        = D1 * (D1⁻¹ * A * D2⁻¹) * D2 := by rfl
+      _ = D1 * (D1⁻¹ * (A * D2⁻¹)) * D2 := by rw [Matrix.mul_assoc D1⁻¹ A D2⁻¹]
+      _ = D1 * D1⁻¹ * (A * D2⁻¹) * D2 := by rw [Matrix.mul_assoc D1 D1⁻¹ (A * D2⁻¹)]
+      _ = 1 * (A * D2⁻¹) * D2 := by rw [Matrix.mul_inv_of_invertible D1]
+      _ = A * D2⁻¹ * D2 := by rw [Matrix.one_mul]
+      _ = A * (D2⁻¹ * D2) := by rw [Matrix.mul_assoc]
+      _ = A * 1 := by rw [Matrix.inv_mul_of_invertible D2]
+      _ = A := by rw [Matrix.mul_one]
 
   -- 7. 验证 Q 是正交的
   have hQ_orth : Qᵀ * Q = 1 := by sorry
