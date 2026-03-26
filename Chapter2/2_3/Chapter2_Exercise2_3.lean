@@ -107,8 +107,12 @@ lemma diagonal_mul (D1 D2 : Matrix (Fin d) (Fin d) ℝ)
   intro i j hij
   simp only [Matrix.mul_apply]
   -- 当 i ≠ j 时，D1[i,k] 仅在 k=i 时非零，D2[k,j] 仅在 k=j 时非零
-  -- 但 i≠j，所以 D2[i,j] = 0，因此整个和为 0
-  sorry
+  -- 但 i≠j，所以没有 k 能同时让两项都非零，因此整个和为 0
+  apply Finset.sum_eq_zero
+  intro k _
+  by_cases hik : i = k
+  · simp [← hik, hD2 i j hij]
+  · simp [hD1 i k hik]
 
 /-- 主定理：练习 2.3 完整形式化 -/
 theorem exercise_symmetry_identifiability
