@@ -113,6 +113,17 @@ theorem svd_choice_gives_Y_eq_sigma_BT_Z
   sorry
 
 /--
+A matrix satisfying IsDiag is equal to the diagonal matrix of its diagonal entries.
+-/
+lemma diag_matrix_eq_diagonal (M : Matrix (Fin d) (Fin d) ℝ) (h : M.IsDiag) :
+    M = diagonal M.diag := by
+  ext i j
+  simp only [diagonal_apply, diag]
+  by_cases hij : i = j
+  · simp [hij]
+  · simp [hij, h hij]
+
+/--
 For a diagonal matrix Σ with positive entries, Σ^(-1/2) exists and is also diagonal.
 -/
 theorem pos_diag_has_inv_sqrt
@@ -122,7 +133,31 @@ theorem pos_diag_has_inv_sqrt
     ∃ sigma_invSqrt : Matrix (Fin d) (Fin d) ℝ,
       sigma_invSqrt * sigma * sigma_invSqrt = 1 ∧
       sigma_invSqrt.IsDiag := by
-  sorry
+  -- Construct the inverse square root as a diagonal matrix with entries 1/√(σᵢᵢ)
+  let d_func : Fin d → ℝ := fun i => 1 / Real.sqrt (sigma i i)
+  let invSqrt := diagonal d_func
+  use invSqrt
+  constructor
+  · -- Prove invSqrt * sigma * invSqrt = 1
+    -- First, express sigma as a diagonal matrix using the helper lemma
+    have sigma_eq : sigma = diagonal sigma.diag := diag_matrix_eq_diagonal sigma h_diag
+    -- Use diagonal_mul_diagonal to simplify the product of diagonal matrices
+    rw [sigma_eq]
+    rw [diagonal_mul_diagonal, diagonal_mul_diagonal]
+    -- Now show diagonal (fun i => d_func i * sigma.diag i * d_func i) = 1
+    rw [← diagonal_one]
+    congr 1
+    ext i
+    simp only [diag, d_func]
+    -- For each i: (1/√σᵢᵢ) * σᵢᵢ * (1/√σᵢᵢ) = 1
+    have hpos_i : 0 < sigma i i := h_pos i
+    have hsqrt_pos : 0 < Real.sqrt (sigma i i) := Real.sqrt_pos.mpr hpos_i
+    have hsqrt_ne : Real.sqrt (sigma i i) ≠ 0 := ne_of_gt hsqrt_pos
+    -- Simplify using field_simp and sqrt properties
+    field_simp
+    rw [Real.sq_sqrt (le_of_lt hpos_i)]
+  · -- Prove invSqrt is diagonal (immediate from construction)
+    exact isDiag_diagonal _
 
 /--
 Core lemma: When V is chosen via SVD and ZZ^T is well-behaved (identity covariance),
