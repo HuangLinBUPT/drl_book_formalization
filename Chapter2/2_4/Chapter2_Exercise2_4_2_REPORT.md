@@ -1,4 +1,4 @@
-# Chapter 2, Exercise 2.4, Part 2: Whitening Matrix Properties
+# 第2章 练习2.4 第2部分：白化矩阵性质
 
 ## 形式化报告
 

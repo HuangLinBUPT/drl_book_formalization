@@ -1,4 +1,4 @@
-# Chapter 2, Exercise 2.1: PCA Optimality (Ky Fan Maximum Principle)
+# 第2章 练习2.1：PCA 最优性（Ky Fan 最大值原理）
 
 ## 书籍原文
 

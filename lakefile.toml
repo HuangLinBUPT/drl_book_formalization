@@ -1,11 +1,15 @@
 name = "drl-formalization"
 version = "0.1.0"
-defaultTargets = ["drl-formalization"]
+defaultTargets = ["drl-formalization", "DrlFormalization"]
 
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4"
 rev = "v4.28.0"
+
+[[lean_lib]]
+name = "DrlFormalization"
+globs = ["Chapter2.+.+"]
 
 [[lean_exe]]
 name = "drl-formalization"

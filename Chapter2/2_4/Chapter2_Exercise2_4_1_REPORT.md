@@ -1,143 +1,143 @@
-# Chapter 2, Exercise 2.4, Part 1: Formalization Report
+# 第2章 练习2.4 第1部分：形式化报告
 
-## Exercise Information
+## 习题信息
 
-**Source:** Deep Representation Learning book, Chapter 2, Exercise 2.4 (Whitening), Part 1
-**Location:** `deep-representation-learning-book/chapters/chapter2/classic-models.tex:2282`
-**Date:** 2026-03-28
+**来源**：深度表征学习书籍，第2章，练习2.4（白化），第1部分
+**文件位置**：`deep-representation-learning-book/chapters/chapter2/classic-models.tex:2282`
+**日期**：2026-03-28
 
-## Informal Statement
+## 非形式化陈述
 
-Consider the model $\mathbf{x} = \mathbf{U}\mathbf{z}$, where $\mathbf{U} \in \mathbb{R}^{D \times d}$ with $D \geq d$ is fixed and has rank $d$, and $\mathbf{z}$ is a zero-mean random variable. Let $\mathbf{x}_1, \dots, \mathbf{x}_N$ denote i.i.d. observations from this model.
+考虑模型 $\mathbf{x} = \mathbf{U}\mathbf{z}$，其中 $\mathbf{U} \in \mathbb{R}^{D \times d}$，$D \geq d$，$\mathbf{U}$ 固定且秩为 $d$，$\mathbf{z}$ 是零均值随机变量。设 $\mathbf{x}_1, \dots, \mathbf{x}_N$ 为从该模型中独立同分布采样的观测值。
 
-**Part 1:** Show that the matrix $\mathbf{X} = [\mathbf{x}_1, \dots, \mathbf{x}_N]$ has rank no larger than $d$, and therefore there is an orthonormal matrix $\mathbf{V} \in \mathbb{R}^{D \times d}$ so that $\mathbf{X} = \mathbf{V}\mathbf{Y}$, where $\mathbf{Y} \in \mathbb{R}^{d \times N}$.
+**第1部分**：证明矩阵 $\mathbf{X} = [\mathbf{x}_1, \dots, \mathbf{x}_N]$ 的秩不超过 $d$，因此存在正交矩阵 $\mathbf{V} \in \mathbb{R}^{D \times d}$，使得 $\mathbf{X} = \mathbf{V}\mathbf{Y}$，其中 $\mathbf{Y} \in \mathbb{R}^{d \times N}$。
 
-**Hint:** Use PCA.
+**提示**：使用 PCA。
 
-## Formalization Strategy
+## 形式化策略
 
-### Key Insights
+### 核心思路
 
-1. **Rank Bound:** Since each observation $\mathbf{x}_i = \mathbf{U}\mathbf{z}_i$, we can write:
+1. **秩的上界**：由于每个观测 $\mathbf{x}_i = \mathbf{U}\mathbf{z}_i$，可以写出：
    $$\mathbf{X} = [\mathbf{x}_1, \dots, \mathbf{x}_N] = [\mathbf{U}\mathbf{z}_1, \dots, \mathbf{U}\mathbf{z}_N] = \mathbf{U} \cdot [\mathbf{z}_1, \dots, \mathbf{z}_N] = \mathbf{U} \cdot \mathbf{Z}$$
-   where $\mathbf{Z} \in \mathbb{R}^{d \times N}$ is the matrix of latent vectors.
+   其中 $\mathbf{Z} \in \mathbb{R}^{d \times N}$ 是潜在向量组成的矩阵。
 
-2. **Matrix Rank Inequality:** Using the fundamental property that $\text{rank}(\mathbf{A}\mathbf{B}) \leq \min(\text{rank}(\mathbf{A}), \text{rank}(\mathbf{B}))$, we have:
+2. **矩阵秩不等式**：利用基本性质 $\text{rank}(\mathbf{A}\mathbf{B}) \leq \min(\text{rank}(\mathbf{A}), \text{rank}(\mathbf{B}))$，得到：
    $$\text{rank}(\mathbf{X}) = \text{rank}(\mathbf{U}\mathbf{Z}) \leq \text{rank}(\mathbf{U}) = d$$
 
-3. **Orthonormal Decomposition:** For the second part, we need to show that any matrix with rank $\leq d$ can be decomposed as $\mathbf{X} = \mathbf{V}\mathbf{Y}$ where $\mathbf{V}$ is orthonormal. This is essentially a QR decomposition or can be obtained from:
-   - Computing an orthonormal basis for the column space of $\mathbf{X}$
-   - Using Gram-Schmidt orthogonalization or QR decomposition
-   - Extending to a $D \times d$ orthonormal matrix if needed
+3. **正交分解**：对于第二部分，需要证明任何秩 $\leq d$ 的矩阵都可以分解为 $\mathbf{X} = \mathbf{V}\mathbf{Y}$，其中 $\mathbf{V}$ 是正交矩阵。本质上是 QR 分解，或通过以下方法得到：
+   - 计算 $\mathbf{X}$ 列空间的正交基
+   - 使用 Gram-Schmidt 正交化或 QR 分解
+   - 必要时扩展为 $D \times d$ 的正交矩阵
 
-### Lean 4 Formalization Approach
+### Lean 4 形式化方案
 
-1. **Data Structure for Orthonormal Matrices:**
-   - Defined `OrthonormalMatrix` structure to represent matrices with orthonormal columns
-   - The orthonormality condition: $\mathbf{V}^T \mathbf{V} = \mathbf{I}_d$
+1. **正交矩阵的数据结构**：
+   - 定义 `OrthonormalMatrix` 结构来表示具有正交归一列的矩阵
+   - 正交性条件：$\mathbf{V}^T \mathbf{V} = \mathbf{I}_d$
 
-2. **Main Theorems:**
-   - `data_matrix_rank_bound`: Proves $\text{rank}(\mathbf{U} \cdot \mathbf{Z}) \leq \text{rank}(\mathbf{U})$
-   - `data_matrix_rank_le_d`: Proves $\text{rank}(\mathbf{X}) \leq d$ when $\text{rank}(\mathbf{U}) = d$
-   - `exists_orthonormal_decomposition`: Existence of orthonormal decomposition
-   - `exercise_2_4_part_1`: Combined statement of both parts
+2. **主要定理**：
+   - `data_matrix_rank_bound`：证明 $\text{rank}(\mathbf{U} \cdot \mathbf{Z}) \leq \text{rank}(\mathbf{U})$
+   - `data_matrix_rank_le_d`：证明当 $\text{rank}(\mathbf{U}) = d$ 时 $\text{rank}(\mathbf{X}) \leq d$
+   - `exists_orthonormal_decomposition`：正交分解的存在性
+   - `exercise_2_4_part_1`：两部分的综合陈述
 
-## Formalization Status
+## 形式化状态
 
-### ✅ Completed
+### ✅ 已完成
 
-1. **Rank bound (fully proved):**
+1. **秩的上界（完整证明）**：
    ```lean
    theorem data_matrix_rank_bound
      (U : Matrix (Fin D) (Fin d) R)
      (Z : Matrix (Fin d) (Fin N) R) :
      (U * Z).rank ≤ U.rank
    ```
-   **Proof:** Direct application of `Matrix.rank_mul_le_left` from Mathlib.
+   **证明**：直接应用 Mathlib 的 `Matrix.rank_mul_le_left`。
 
-2. **Specific rank bound with hypothesis (fully proved):**
+2. **带假设的具体秩上界（完整证明）**：
    ```lean
    theorem data_matrix_rank_le_d
      (h_rank : U.rank = d) :
      (U * Z).rank ≤ d
    ```
-   **Proof:** Combines rank bound with the hypothesis that $\text{rank}(\mathbf{U}) = d$.
+   **证明**：结合秩上界与 $\text{rank}(\mathbf{U}) = d$ 的假设。
 
-### ⚠️ Partially Complete (with sorry)
+### ⚠️ 部分完成（含 sorry）
 
-3. **Orthonormal decomposition existence (sorry):**
+3. **正交分解的存在性（sorry）**：
    ```lean
    theorem exists_orthonormal_decomposition
      ∃ (V : OrthonormalMatrix D d R) (Y : Matrix (Fin d) (Fin N) R),
        U * Z = V.matrix * Y
    ```
-   **Status:** Statement formalized, proof left as `sorry`.
+   **状态**：陈述已形式化，证明标记为 `sorry`。
 
-   **Reason:** This requires QR decomposition theory or Gram-Schmidt orthogonalization, which is not yet conveniently accessible in Mathlib for this matrix formulation. The result is a well-known theorem in linear algebra.
+   **原因**：这需要 QR 分解理论或 Gram-Schmidt 正交化，目前在 Mathlib 中对这种矩阵形式还不够方便使用。该结果是线性代数中的已知定理。
 
-## Mathlib Dependencies
+## Mathlib 依赖
 
-### Used Theorems
-- `Matrix.rank_mul_le_left`: $\text{rank}(\mathbf{A}\mathbf{B}) \leq \text{rank}(\mathbf{A})$
-  - Source: `Mathlib.LinearAlgebra.Matrix.Rank`
+### 使用的定理
+- `Matrix.rank_mul_le_left`：$\text{rank}(\mathbf{A}\mathbf{B}) \leq \text{rank}(\mathbf{A})$
+  - 来源：`Mathlib.LinearAlgebra.Matrix.Rank`
 
-### Relevant Modules
-- `Mathlib` (comprehensive import)
-- Matrix operations and rank theory from `Mathlib.LinearAlgebra.Matrix.Rank`
+### 相关模块
+- `Mathlib`（综合导入）
+- 来自 `Mathlib.LinearAlgebra.Matrix.Rank` 的矩阵运算和秩理论
 
-## Technical Notes
+## 技术说明
 
-### Matrix Representation
-- Matrices are represented as `Matrix (Fin D) (Fin d) R` where `R` is a field
-- This uses finite-dimensional matrices with dimensions indexed by `Fin n`
+### 矩阵表示
+- 矩阵表示为 `Matrix (Fin D) (Fin d) R`，其中 `R` 是一个域
+- 使用 `Fin n` 索引的有限维矩阵
 
-### Orthonormality Condition
-- Defined via transpose multiplication: $\mathbf{V}^T \mathbf{V} = \mathbf{I}$
-- Uses `matrix.transpose` and matrix multiplication
+### 正交归一条件
+- 通过转置乘法定义：$\mathbf{V}^T \mathbf{V} = \mathbf{I}$
+- 使用 `matrix.transpose` 和矩阵乘法
 
-### Future Work
-To complete the `sorry` in `exists_orthonormal_decomposition`, we would need:
+### 后续工作
+完成 `exists_orthonormal_decomposition` 中的 `sorry` 需要：
 
-1. **QR Decomposition Theorem:** Formalize that every matrix can be decomposed as $\mathbf{A} = \mathbf{Q}\mathbf{R}$ where $\mathbf{Q}$ is orthonormal and $\mathbf{R}$ is upper triangular.
+1. **QR 分解定理**：形式化任意矩阵可分解为 $\mathbf{A} = \mathbf{Q}\mathbf{R}$，其中 $\mathbf{Q}$ 正交归一，$\mathbf{R}$ 是上三角矩阵。
 
-2. **Gram-Schmidt Process:** Formalize the Gram-Schmidt orthogonalization algorithm that converts any set of linearly independent vectors into an orthonormal set.
+2. **Gram-Schmidt 过程**：形式化将任意一组线性无关向量转化为正交归一集合的 Gram-Schmidt 正交化算法。
 
-3. **Column Space Basis:** Use the fact that the column space of $\mathbf{X}$ has dimension $\leq d$, so we can construct an orthonormal basis and express $\mathbf{X}$ in this basis.
+3. **列空间基**：利用 $\mathbf{X}$ 的列空间维数 $\leq d$，构造正交归一基，并用该基表示 $\mathbf{X}$。
 
-These are substantial formalizations that may already exist in parts of Mathlib but need to be connected to the matrix formulation used here.
+这些是较大的形式化工作，可能 Mathlib 中已有部分内容，但需要与这里使用的矩阵形式对接。
 
-## Verification
+## 验证
 
-### Type Checking
+### 类型检查
 ```bash
 $ lake env lean Chapter2/2_4/Chapter2_Exercise2_4_1.lean
 Chapter2/2_4/Chapter2_Exercise2_4_1.lean:97:8: warning: declaration uses `sorry`
 ```
 
-✅ File type-checks successfully with only the expected `sorry` for the orthonormal decomposition existence.
+✅ 文件类型检查通过，仅有正交分解存在性的预期 `sorry` 警告。
 
-### Build Status
+### 构建状态
 ```bash
 $ lake build
 Build completed successfully
 ```
 
-✅ Project builds successfully.
+✅ 项目构建成功。
 
-## Correspondence with Book
+## 与书中的对应关系
 
-| Book Statement | Lean Formalization | Status |
-|----------------|-------------------|---------|
-| $\text{rank}(\mathbf{X}) \leq d$ | `(U * Z).rank ≤ d` | ✅ Proved |
-| $\exists \mathbf{V}$ orthonormal, $\mathbf{Y}$ s.t. $\mathbf{X} = \mathbf{V}\mathbf{Y}$ | `∃ V Y, U * Z = V.matrix * Y` | ⚠️ Stated (sorry) |
+| 书中陈述 | Lean 形式化 | 状态 |
+|---------|------------|------|
+| $\text{rank}(\mathbf{X}) \leq d$ | `(U * Z).rank ≤ d` | ✅ 已证明 |
+| $\exists \mathbf{V}$ 正交归一，$\mathbf{Y}$ 使得 $\mathbf{X} = \mathbf{V}\mathbf{Y}$ | `∃ V Y, U * Z = V.matrix * Y` | ⚠️ 已陈述（sorry） |
 
-## Summary
+## 总结
 
-**Completion Status:** ~75% (1.5 out of 2 main claims fully proved)
+**完成度**：约 75%（2 个主要命题中的 1.5 个已完整证明）
 
-- ✅ **Rank bound:** Fully proved using Mathlib's rank inequality
-- ⚠️ **Orthonormal decomposition:** Statement formalized, proof requires QR decomposition machinery
+- ✅ **秩上界**：利用 Mathlib 的秩不等式完整证明
+- ⚠️ **正交分解**：陈述已形式化，证明需要 Mathlib 中的 QR 分解机制
 
-The formalization successfully captures the mathematical content of Exercise 2.4, Part 1. The rank bound is rigorously proved, demonstrating that the data matrix has limited rank. The orthonormal decomposition existence is correctly stated but awaits a proof that requires more advanced linear algebra machinery (QR decomposition) from Mathlib.
+形式化成功捕获了练习2.4 第1部分的数学内容。秩上界得到了严格证明，说明数据矩阵的秩有限。正交分解存在性陈述正确，但等待需要更高级线性代数机制（QR 分解）的证明。
 
-This represents solid progress on the whitening exercise and provides a foundation for Parts 2 and 3.
+这代表了白化练习的扎实进展，为第2部分和第3部分奠定了基础。

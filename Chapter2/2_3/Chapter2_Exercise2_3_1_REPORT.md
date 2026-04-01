@@ -1,33 +1,33 @@
-# Exercise 2.3.1 Formalization Report: GL(d) Symmetry
+# 第2章 练习2.3.1 形式化报告：GL(d) 对称性
 
-## Problem Statement
+## 习题陈述
 
-**Source**: Deep Representation Learning Book, Chapter 2, Exercise 2.3 Part 1
+**来源**：深度表征学习书籍，第2章，练习2.3 第1部分
 
-**Informal Statement**: Consider the model X = UZ for matrices X, U, Z of compatible sizes. Show that if A is any square invertible matrix of compatible size, then the pair (UA, A⁻¹Z) also equals X under the model. We call this a **GL(d) symmetry**.
+**非形式化陈述**：考虑模型 X = UZ，其中 X、U、Z 为大小相容的矩阵。证明：若 A 是任意大小相容的方阵可逆矩阵，则 (UA, A⁻¹Z) 在该模型下同样等于 X。我们称之为 **GL(d) 对称性**。
 
-## Mathematical Context
+## 数学背景
 
-### The Linear Model
-- **Data matrix**: X ∈ ℝ^(D×N) (D-dimensional data, N samples)
-- **Dictionary/Basis**: U ∈ ℝ^(D×d) (D dimensions, d basis vectors)
-- **Coefficients**: Z ∈ ℝ^(d×N) (d coefficients per sample)
-- **Model**: X = UZ
+### 线性模型
+- **数据矩阵**：X ∈ ℝ^(D×N)（D 维数据，N 个样本）
+- **字典/基**：U ∈ ℝ^(D×d)（D 维空间中的 d 个基向量）
+- **系数**：Z ∈ ℝ^(d×N)（每个样本的 d 个系数）
+- **模型**：X = UZ
 
-### GL(d) Symmetry
-The general linear group GL(d) consists of all d×d invertible matrices. The exercise shows that the factorization X = UZ is **not unique**: any invertible transformation A ∈ GL(d) gives another valid factorization.
+### GL(d) 对称性
+一般线性群 GL(d) 由所有 d×d 可逆矩阵组成。该练习说明分解 X = UZ **不唯一**：任意可逆变换 A ∈ GL(d) 都给出另一个有效分解。
 
-## Formalization Approach
+## 形式化方案
 
-### Type Setup
+### 类型设置
 ```lean
 variable {D d N : Type*} [Fintype D] [Fintype d] [Fintype N]
 ```
-We use type variables for dimensions to maximize generality. All matrices are over ℝ.
+使用类型变量表示维度，以最大化通用性。所有矩阵定义在 ℝ 上。
 
-### Key Theorem: `gl_d_symmetry`
+### 主定理：`gl_d_symmetry`
 
-**Statement**:
+**陈述**：
 ```lean
 theorem gl_d_symmetry
     (U : Matrix D d ℝ)
@@ -37,85 +37,85 @@ theorem gl_d_symmetry
     (U * A) * (A⁻¹ * Z) = U * Z
 ```
 
-**Proof Strategy**:
-The proof is a straightforward algebraic manipulation:
+**证明策略**：
+证明是直接的代数推导：
 
-1. **(UA)(A⁻¹Z)** — Given expression
-2. **= U(A(A⁻¹Z))** — Matrix multiplication associativity
-3. **= U((AA⁻¹)Z)** — Matrix multiplication associativity
-4. **= U(IZ)** — Inverse property: AA⁻¹ = I (requires A invertible)
-5. **= UZ** — Identity property: IZ = Z
+1. **(UA)(A⁻¹Z)** — 给定表达式
+2. **= U(A(A⁻¹Z))** — 矩阵乘法结合律
+3. **= U((AA⁻¹)Z)** — 矩阵乘法结合律
+4. **= U(IZ)** — 逆元性质：AA⁻¹ = I（需要 A 可逆）
+5. **= UZ** — 单位元性质：IZ = Z
 
-**Key Lemmas Used**:
-- `Matrix.mul_assoc`: Matrix multiplication is associative
-- `Matrix.nonsing_inv_mul`: For invertible A, we have AA⁻¹ = I
-- `Matrix.one_mul`: Identity matrix is the multiplicative identity
-- `IsUnit A.det`: Condition for invertibility (det(A) ≠ 0)
+**使用的关键引理**：
+- `Matrix.mul_assoc`：矩阵乘法满足结合律
+- `Matrix.nonsing_inv_mul`：当 A 可逆时，AA⁻¹ = I
+- `Matrix.one_mul`：单位矩阵是乘法单位元
+- `IsUnit A.det`：可逆性条件（det(A) ≠ 0）
 
-### Additional Theorems
+### 附加定理
 
 #### `model_invariance_under_GLd`
-Shows that if X = UZ, then X = (UA)(A⁻¹Z) for any invertible A.
+证明若 X = UZ，则对任意可逆 A，X = (UA)(A⁻¹Z)。
 
-This is a direct corollary that explicitly states the model equation is preserved.
+这是一个直接推论，明确指出模型方程在该变换下保持不变。
 
 #### `factorization_non_uniqueness`
-Demonstrates the existence of infinitely many factorizations: given one factorization X = UZ, we can construct another (U', Z') = (UA, A⁻¹Z) for any invertible A.
+证明存在无穷多个分解：给定一个分解 X = UZ，可以构造另一个分解 (U', Z') = (UA, A⁻¹Z)，对任意可逆 A 均成立。
 
-This theorem captures the **non-identifiability** of the model: without additional constraints, we cannot uniquely determine U and Z from observations of X alone.
+该定理描述了模型的**不可识别性**：若没有额外约束，仅凭对 X 的观测无法唯一确定 U 和 Z。
 
-## Mathematical Significance
+## 数学意义
 
-### Why This Matters
+### 为什么重要
 
-1. **Non-identifiability**: The model X = UZ admits infinite solutions. Any (U, Z) can be transformed to (UA, A⁻¹Z) for any A ∈ GL(d).
+1. **不可识别性**：模型 X = UZ 有无穷多个解。任意 (U, Z) 都可以变换为 (UA, A⁻¹Z)，其中 A ∈ GL(d)。
 
-2. **Need for Constraints**: To uniquely recover U (or Z), we need additional assumptions:
-   - **Orthogonality**: U has orthonormal columns (U^T U = I) → Reduces GL(d) to orthogonal group O(d)
-   - **Statistical Independence**: Components of Z are independent → ICA methods
-   - **Sparsity**: Z has sparse structure → Dictionary learning
+2. **需要约束条件**：为了唯一恢复 U（或 Z），需要额外假设：
+   - **正交性**：U 的列正交归一（U^T U = I）→ 将 GL(d) 约简为正交群 O(d)
+   - **统计独立性**：Z 的分量相互独立 → ICA 方法
+   - **稀疏性**：Z 具有稀疏结构 → 字典学习
 
-3. **Connection to Part 2**: Exercise 2.3.2 shows that with independence assumptions on Z, the symmetry group reduces from GL(d) to just scaling and rotations (D₁QD₂ form).
+3. **与第2部分的联系**：练习2.3.2 证明了在对 Z 加独立性假设后，对称性群从 GL(d) 约简为仅含缩放和旋转（D₁QD₂ 形式）。
 
-4. **Geometric Interpretation**: GL(d) symmetry means the representation space can be arbitrarily transformed (stretched, rotated, sheared) without changing the observations X.
+4. **几何解释**：GL(d) 对称性意味着表示空间可以任意变换（拉伸、旋转、剪切），而不改变观测值 X。
 
-## Verification
+## 验证
 
-The formalization was verified to typecheck successfully:
+形式化已验证类型检查通过：
 ```bash
 cd lean_formalization
 lake env lean Chapter2/2_3/Chapter2_Exercise2_3_1.lean
 ```
 
-All theorems compile without `sorry` — the proofs are complete.
+所有定理均无 `sorry` 编译通过——证明完整。
 
-## Lean 4 Technical Notes
+## Lean 4 技术说明
 
-### Invertibility Condition
-We use `IsUnit A.det` to express that A is invertible. This is equivalent to det(A) ≠ 0 and is the standard way in Mathlib to work with invertible matrices.
+### 可逆性条件
+使用 `IsUnit A.det` 表达 A 可逆。这等价于 det(A) ≠ 0，是 Mathlib 中处理可逆矩阵的标准方式。
 
-### Matrix Inverse Notation
-- `A⁻¹` is Lean notation for the matrix inverse
-- The lemma `Matrix.nonsing_inv_mul` requires proof of `IsUnit A.det` to conclude `A * A⁻¹ = 1`
+### 矩阵逆的记号
+- `A⁻¹` 是 Lean 中矩阵逆的记号
+- 引理 `Matrix.nonsing_inv_mul` 需要 `IsUnit A.det` 的证明，才能得出 `A * A⁻¹ = 1`
 
-### Noncomputability
-The `noncomputable section` declaration is necessary because matrix inverses and determinants are not computably decidable in general.
+### 不可计算性
+`noncomputable section` 声明是必要的，因为矩阵逆和行列式在一般情况下不可计算。
 
-## References
+## 参考文献
 
-- **Book**: Deep Representation Learning, Chapter 2, Exercise 2.3
-- **Related Theory**: Independent Component Analysis (ICA), Dictionary Learning
-- **Mathlib Modules**:
+- **书籍**：深度表征学习，第2章，练习2.3
+- **相关理论**：独立成分分析（ICA）、字典学习
+- **Mathlib 模块**：
   - `Mathlib.Data.Matrix.Basic`
   - `Mathlib.LinearAlgebra.Matrix.NonsingularInverse`
   - `Mathlib.LinearAlgebra.Matrix.Determinant`
 
-## Next Steps
+## 后续工作
 
-To complete Exercise 2.3:
-- **Part 2**: Formalize the characterization of A when Az has uncorrelated components
-- Show that A must have the form D₁QD₂ (diagonal × orthogonal × diagonal)
-- This will require formalization of:
-  - Random variables and covariance
-  - Uncorrelated components condition
-  - Polar decomposition theorem
+完成练习2.3的计划：
+- **第2部分**：形式化 Az 具有不相关分量时 A 的特征刻画
+- 证明 A 必须具有 D₁QD₂ 的形式（对角矩阵 × 正交矩阵 × 对角矩阵）
+- 这将需要形式化：
+  - 随机变量和协方差
+  - 不相关分量条件
+  - 极分解定理

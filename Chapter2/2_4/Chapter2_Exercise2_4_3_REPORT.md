@@ -1,4 +1,4 @@
-# Chapter 2, Exercise 2.4, Part 3: Whitening via SVD
+# 第2章 练习2.4 第3部分：基于奇异值分解的白化
 
 ## 形式化报告
 
