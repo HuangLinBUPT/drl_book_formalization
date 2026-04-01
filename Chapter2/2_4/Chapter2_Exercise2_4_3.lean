@@ -110,7 +110,7 @@ theorem svd_choice_gives_Y_eq_sigma_BT_Z
     (Z : Matrix (Fin d) (Fin N) ℝ)
     (svd : SVDDecomposition U) :
     U * Z = svd.V.matrix * (svd.sigma * svd.Bᵀ * Z) := by
-  sorry
+  simp only [svd.svd_eq, Matrix.mul_assoc]
 
 /--
 A matrix satisfying IsDiag is equal to the diagonal matrix of its diagonal entries.
@@ -181,7 +181,13 @@ theorem whitened_equals_orthonormal_times_Z
     ∃ (W : Matrix (Fin d) (Fin d) ℝ) (Y_invSqrt : Matrix (Fin d) (Fin d) ℝ),
       Wᵀ * W = 1 ∧
       Y_invSqrt * (svd.sigma * svd.Bᵀ * Z) = W * Z := by
-  sorry
+  refine ⟨svd.Bᵀ, diagonal (fun i => 1 / svd.sigma i i), svd.B_orthogonal.2, ?_⟩
+  have h : diagonal (fun i => 1 / svd.sigma i i) * svd.sigma = 1 := by
+    conv_lhs => rw [diag_matrix_eq_diagonal svd.sigma svd.sigma_diagonal]
+    rw [diagonal_mul_diagonal, ← diagonal_one]
+    congr 1; ext i; simp [Matrix.diag]
+    exact inv_mul_cancel₀ (ne_of_gt (svd.sigma_pos i))
+  rw [← Matrix.mul_assoc, ← Matrix.mul_assoc, h, Matrix.one_mul]
 
 /-!
 ## Main Result: Exercise 2.4, Part 3
@@ -232,7 +238,11 @@ theorem exercise_2_4_part_3_ideal
       (Y_invSqrt : Matrix (Fin d) (Fin d) ℝ),
       Wᵀ * W = 1 ∧
       Y_invSqrt * svd.sigma * svd.Bᵀ * Z = W * Z := by
-  sorry
+  obtain ⟨svd, _⟩ := exists_svd_decomposition h_D_le U h_rank
+  obtain ⟨W, Y_invSqrt, hW, hY⟩ := whitened_equals_orthonormal_times_Z U Z svd α hα h_Z_ideal
+  refine ⟨svd, W, Y_invSqrt, hW, ?_⟩
+  simp only [Matrix.mul_assoc] at hY ⊢
+  exact hY
 
 /--
 **Exercise 2.4, Part 3 (General Version with Existence)**
@@ -283,6 +293,6 @@ theorem whitening_reduces_symmetry
     -- (which is much smaller than arbitrary invertible transformation)
     ∃ (W : Matrix (Fin d) (Fin d) ℝ),
       Wᵀ * W = 1 := by
-  sorry
+  exact ⟨1, by simp⟩
 
 end Chapter2Exercise24_3
