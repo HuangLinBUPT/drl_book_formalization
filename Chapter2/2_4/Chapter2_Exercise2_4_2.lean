@@ -65,7 +65,7 @@ theorem posDef_invSqrt_mul_self_mul_invSqrt
   (M : Matrix (Fin n) (Fin n) ℝ)
   (h_pos : M.PosDef) :
   ∃ (M_invSqrt : Matrix (Fin n) (Fin n) ℝ),
-    M_invSqrt * M * M_invSqrt = 1 := by
+    M_invSqrt * M * M_invSqrtᵀ = 1 := by
   sorry
 
 /--
@@ -94,12 +94,13 @@ theorem whitening_matrix_identity_covariance
   obtain ⟨M_invSqrt, h_identity⟩ := posDef_invSqrt_mul_self_mul_invSqrt (Y * Yᵀ) h_pos
   use M_invSqrt
   intro W
-  -- W * W^T = M_invSqrt * Y * Y^T * M_invSqrt
+  -- W * W^T = M_invSqrt * Y * Y^T * M_invSqrtᵀ = I
   calc W * Wᵀ
       = (M_invSqrt * Y) * (M_invSqrt * Y)ᵀ := rfl
     _ = (M_invSqrt * Y) * (Yᵀ * M_invSqrtᵀ) := by rw [transpose_mul]
-    _ = M_invSqrt * (Y * Yᵀ) * M_invSqrtᵀ := by sorry -- Matrix associativity
-    _ = M_invSqrt * (Y * Yᵀ) * M_invSqrt := by sorry -- M_invSqrt is symmetric
+    _ = M_invSqrt * (Y * Yᵀ) * M_invSqrtᵀ := by
+        rw [Matrix.mul_assoc M_invSqrt Y, ← Matrix.mul_assoc Y Yᵀ M_invSqrtᵀ,
+            ← Matrix.mul_assoc M_invSqrt (Y * Yᵀ) M_invSqrtᵀ]
     _ = 1 := h_identity
 
 /-!
@@ -183,13 +184,20 @@ theorem whitened_empirical_covariance_scaled
   {d N : ℕ}
   (Y : Matrix (Fin d) (Fin N) ℝ)
   (Y_invSqrt : Matrix (Fin d) (Fin d) ℝ)
-  (h_invSqrt : Y_invSqrt * (Y * Yᵀ) * Y_invSqrt = 1)
+  (h_invSqrt : Y_invSqrt * (Y * Yᵀ) * Y_invSqrtᵀ = 1)
   (N_pos : 0 < (N : ℝ)) :
   let W := Y_invSqrt * Y
   (1 / N : ℝ) • (W * Wᵀ) = (1 / N : ℝ) • (1 : Matrix (Fin d) (Fin d) ℝ) := by
   intro W
-  -- This follows from W * W^T = I
-  sorry
+  have hWWT : W * Wᵀ = 1 := by
+    calc W * Wᵀ
+        = (Y_invSqrt * Y) * (Y_invSqrt * Y)ᵀ := rfl
+      _ = (Y_invSqrt * Y) * (Yᵀ * Y_invSqrtᵀ) := by rw [transpose_mul]
+      _ = Y_invSqrt * (Y * Yᵀ) * Y_invSqrtᵀ := by
+          rw [Matrix.mul_assoc Y_invSqrt Y, ← Matrix.mul_assoc Y Yᵀ Y_invSqrtᵀ,
+              ← Matrix.mul_assoc Y_invSqrt (Y * Yᵀ) Y_invSqrtᵀ]
+      _ = 1 := h_invSqrt
+  simp [hWWT]
 
 /--
 Whitening is invariant under orthogonal transformations in the observation space.
@@ -202,4 +210,4 @@ theorem whitening_orthogonal_invariant
   (h_orth : Q * Qᵀ = 1)
   (Y_invSqrt : Matrix (Fin d) (Fin d) ℝ) :
   Y_invSqrt * (Y * Q) = (Y_invSqrt * Y) * Q := by
-  sorry
+  rw [Matrix.mul_assoc]
