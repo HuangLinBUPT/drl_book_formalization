@@ -26,8 +26,9 @@
 | 2.6.1 | 球面切空间与正交投影：$T_u S^{d-1} = (ℝ·u)^\perp$，$P_u^\perp = I - uu^\top$ | ✅ 完成 | 0 |
 | 2.6.2 | 球面最近点投影：$\operatorname{proj}_{S^{d-1}}(v) = v/\|v\|$ | ✅ 完成 | 0 |
 | 2.6.3 | 黎曼 Hessian：$\text{Hess}\,f(u) = P_u^\perp(\nabla^2 f - \langle\nabla f, u\rangle I)P_u^\perp$ | ✅ 完成 | 0 |
+| 2.7.1 | 球面峰度驻点条件：$f(\mathbf{w})\mathbf{w} = \boldsymbol{\kappa}\odot\mathbf{w}^{\odot 3}$ | ✅ 完成 | 0 |
 
-**总体进展**: 12 个练习，7 个完全完成，5 个接近完成（共 7 个 sorries 待解决）
+**总体进展**: 13 个练习，8 个完全完成，5 个接近完成（共 7 个 sorries 待解决）
 
 ### 第3-5章
 
