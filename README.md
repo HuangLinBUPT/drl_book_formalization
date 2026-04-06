@@ -8,7 +8,7 @@
 
 ## 当前进展
 
-**更新时间**: 2026-04-06（习题 2.7.4 完成）
+**更新时间**: 2026-04-06（习题 2.8.1 完成）
 
 ### 第2章：线性与独立结构
 
@@ -20,18 +20,19 @@
 | 2.3.2 | ICA 对称性约简（对角分解） | 🔄 接近完成 | 1 |
 | 2.4.1 | Whitening：秩界限定理 | 🔄 接近完成 | 1 |
 | 2.4.2 | Whitening：白化矩阵性质 | 🔄 接近完成 | 1 |
-| 2.4.3 | Whitening：SVD 与正交恢复 | 🔄 接近完成 | 2 |
+| 2.4.3 | Whitening：SVD 与正交恢复 | 🔄 接近完成 | 3 |
 | 2.5.1 | 峰度加法性：kurt(X+Y) = kurt(X) + kurt(Y) | ✅ 完成 | 0 |
 | 2.5.2 | 峰度齐次性：kurt(αX) = α⁴·kurt(X) | ✅ 完成 | 0 |
-| 2.6.1 | 球面切空间与正交投影：$T_u S^{d-1} = (ℝ·u)^\perp$，$P_u^\perp = I - uu^\top$ | ✅ 完成 | 0 |
+| 2.6.1 | 球面切空间与正交投影：$T_u S^{d-1} = (\mathbb{R}\cdot u)^\perp$，$P_u^\perp = I - uu^\top$ | ✅ 完成 | 0 |
 | 2.6.2 | 球面最近点投影：$\operatorname{proj}_{S^{d-1}}(v) = v/\|v\|$ | ✅ 完成 | 0 |
-| 2.6.3 | 黎曼 Hessian：$\text{Hess}\,f(u) = P_u^\perp(\nabla^2 f - \langle\nabla f, u\rangle I)P_u^\perp$ | ✅ 完成 | 0 |
+| 2.6.3 | 黎曼 Hessian：$\operatorname{Hess}f(u) = P_u^\perp(\nabla^2 f - \langle\nabla f, u\rangle I)P_u^\perp$ | ✅ 完成 | 0 |
 | 2.7.1 | 球面峰度驻点条件：$f(\mathbf{w})\mathbf{w} = \boldsymbol{\kappa}\odot\mathbf{w}^{\odot 3}$ | ✅ 完成 | 0 |
 | 2.7.2 | 球面峰度临界点：$\|\mathbf{w}_S\|=1$ 且满足驻点方程 | ✅ 完成 | 0 |
-| 2.7.3 | 球面峰度局部极大值：$e_j$（$\kappa_j>0$）处 Hessian 负定，全局极大为最大峰度基向量 | ✅ 完成 | 0 |
-| 2.7.4 | 球面峰度过度紧缩景观：$\forall\kappa_i<0$ 时 Hessian $= 8\sigma\|v\|^2 \leq 0$，稠密向量为局部极大 | ✅ 完成 | 0 |
+| 2.7.3 | 球面峰度局部极大值：$e_j$（$\kappa_j>0$）处 Hessian 负定 | ✅ 完成 | 0 |
+| 2.7.4 | 球面峰度过度紧缩景观：$\forall\kappa_i<0$ 时稠密向量为局部极大 | ✅ 完成 | 0 |
+| 2.8.1 | O(d) 切空间与正交投影：$T_Q O(d)=\{Q\Omega\mid\Omega^\top=-\Omega\}$，$\mathcal{P}(\Delta)=Q\operatorname{Skew}(Q^\top\Delta)$ | ✅ 完成 | 0 |
 
-**总体进展**: 16 个练习，11 个完全完成，5 个接近完成（共 7 个 sorries 待解决）
+**总体进展**: 17 个练习，12 个完全完成，5 个接近完成（共 8 个 sorries 待解决）
 
 ### 第3-5章
 
