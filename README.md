@@ -8,7 +8,7 @@
 
 ## 当前进展
 
-**更新时间**: 2026-04-06（习题 2.8.2 完成）
+**更新时间**: 2026-04-06（习题 2.8.3.1 完成）
 
 ### 第2章：线性与独立结构
 
@@ -32,8 +32,9 @@
 | 2.7.4 | 球面峰度过度紧缩景观：$\forall\kappa_i<0$ 时稠密向量为局部极大 | ✅ 完成 | 0 |
 | 2.8.1 | O(d) 切空间与正交投影：$T_Q O(d)=\{Q\Omega\mid\Omega^\top=-\Omega\}$，$\mathcal{P}(\Delta)=Q\operatorname{Skew}(Q^\top\Delta)$ | ✅ 完成 | 0 |
 | 2.8.2 | O(d) 黎曼 Hessian：$\mathrm{Hess}\,f(Q)=\mathcal{P}(\nabla^2 f - \mathrm{Symm}(Q^\top\nabla f)\otimes I)\mathcal{P}$ | ✅ 完成 | 0 |
+| 2.8.3.1 | O(d) 投影最优性条件（Part 3a）：$(Q^\top X)^\top=Q^\top X$ 且 $Q^\top X \succeq 0$ | ✅ 完成 | 0 |
 
-**总体进展**: 18 个练习，13 个完全完成，5 个接近完成（共 8 个 sorries 待解决）
+**总体进展**: 19 个练习，14 个完全完成，5 个接近完成（共 8 个 sorries 待解决）
 
 ### 第3-5章
 
