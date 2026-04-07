@@ -2,10 +2,15 @@
 
 ## 书籍原文
 
+
 > **Exercise 2.1** (p.2237)
-> Prove that, for any symmetric matrix $\vA$, the solution to the problem
-> $\max_{\vU \in \O(D, d)}\tr\left(\vU^{\top}\vA\vU\right)$
-> is the matrix $\vU^{\star}$ whose columns are the top $d$ unit eigenvectors of $\vA$.
+> Prove that, for any symmetric matrix $\mathbf{A}$, the solution to the problem
+>
+> $$
+> \max_{\mathbf{U} \in \mathcal{O}(D, d)} \operatorname{tr}(\mathbf{U}^{\top} \mathbf{A} \mathbf{U})
+> $$
+>
+> is the matrix $\mathbf{U}^\star$ whose columns are the top $d$ unit eigenvectors of $\mathbf{A}$.
 
 ## 形式化文件
 
@@ -33,7 +38,10 @@ $$ \operatorname{tr}(U^\top A U) \leq \sum_{i=1}^{d} \lambda_i $$
 $$ \operatorname{tr}((U^*)^\top A U^*) = \sum_{i=1}^{d} \lambda_i $$
 
 ### principal_components (主定理)
-$$ \max_{U \in \O(D,d)} \operatorname{tr}(U^\top A U) = \sum_{i=1}^{d} \lambda_i $$
+
+$$
+\max_{U \in \mathcal{O}(D,d)} \operatorname{tr}(U^\top A U) = \sum_{i=1}^{d} \lambda_i
+$$
 
 ---
 
@@ -52,13 +60,10 @@ A.IsHermitian
 ### 证明步骤
 
 #### 第一步：谱定理分解
-
 利用谱定理，将对称矩阵 A 分解为：
 ```
 A = P Λ P^T
-```
 其中：
-- P ∈ ℝ^{D×D} 是酉矩阵（特征向量组成的正交基）
 - Λ = diag(λ₁, λ₂, ..., λ_D) 是特征值对角矩阵
 
 在 Lean 中：
@@ -67,8 +72,6 @@ obtain ⟨P, hP⟩ : ∃ P : Matrix (Fin D) (Fin D) ℝ,
   P.conjTranspose * P = 1 ∧
   A = P * Matrix.diagonal (hA.eigenvalues) * P.conjTranspose
 ```
-
-#### 第二步：酉变换保持正交性
 
 令 V = P^T U，则 V 仍然满足 V^T V = I：
 ```lean
@@ -116,11 +119,7 @@ $$\operatorname{tr}(U^\top A U) \leq \sum_{j \in S} \lambda_j$$
 
 取 U 的列为对应前 d 个最大特征值的特征向量：
 ```lean
-use Matrix.of (fun i j => hA.eigenvectorBasis (e j) i)
 ```
-
-此时可以验证：
-- U^T U = I（正交性）
 - tr(U^T A U) = Σ_{j∈S} λ_j（等号成立）
 
 ---
