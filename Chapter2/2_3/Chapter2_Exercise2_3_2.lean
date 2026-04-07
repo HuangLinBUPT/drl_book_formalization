@@ -1,41 +1,37 @@
 /-
   深度表征学习 第2章 练习2.3.2
 
-  ICA对称性约简：证明当随机向量z的各分量独立（零均值、正方差）时，
-  若可逆矩阵A使得Az的各分量不相关，则A必具有形式 A = D₁QD₂，
-  其中Q为正交矩阵，D₁、D₂为对角矩阵。
+  ICA对称性：若 z 是零均值、独立分量（正方差）的随机向量，
+  A 是可逆方阵，且 Az 的各分量不相关（即 Cov(Az) 是对角阵），
+  则 A 可以分解为 A = D₁ Q D₂，其中 Q 是正交矩阵，D₁, D₂ 是对角矩阵。
+
+  See book Chapter 2, Exercise 2.3 (exercise:symmetry-identifiability), part 2.
 -/
 
 import Mathlib
 
 /-!
-# Exercise 2.3.2: Symmetry Breaking in ICA
+# Exercise 2.3.2: ICA Symmetry — Covariance Preservation and Decomposition
 
-Given a random vector z with independent components (zero mean, positive variance),
-we show that if a square invertible matrix A produces uncorrelated components in Az,
-then A must decompose as A = D₁QD₂ where Q is orthogonal and D₁, D₂ are diagonal.
+## Statement
 
-This demonstrates how the independence assumption in ICA reduces the GL(d) symmetry
-to only scale and rotational symmetries.
+Given z with:
+- Zero mean: 𝔼[z] = 0
+- Independent components z_i with positive variance: Cov(z) = Σ = diagonal(σ), σᵢ > 0
+- A is an invertible square matrix
 
-## Mathematical Setup
+If Az has uncorrelated components (i.e., Cov(Az) = A Cov(z) Aᵀ is diagonal),
+then A = D₁ Q D₂ where Q is orthogonal and D₁, D₂ are diagonal.
 
-- **z**: Random vector with independent components, zero mean, positive variance
-- **Cov(z)**: Covariance matrix of z, diagonal with positive entries (due to independence)
-- **A**: Square invertible matrix
-- **Az**: Transformed random vector
-- **Cov(Az) = A · Cov(z) · Aᵀ**: Covariance transformation formula
+## Proof strategy
 
-## Key Insight
-
-If both Cov(z) and Cov(Az) are diagonal, then A · Diag · Aᵀ = Diag,
-where Diag denotes a diagonal matrix with positive entries.
-This strong constraint forces A to have the form D₁QD₂.
-
-## Formalization Approach
-
-We formalize the deterministic core: given diagonal positive definite Σ_z,
-if A · Σ_z · Aᵀ is also diagonal, then A = D₁ · Q · D₂.
+Let Σ = diag(σ₁,...,σd) with σᵢ > 0. Let D = diag(√σ₁,...,√σd).
+Define B = A * D (invertible since both A and D are).
+Then B * Bᵀ = A * D * Dᵀ * Aᵀ = A * Σ * Aᵀ (since D is diagonal and symmetric, D² = Σ).
+Since A Σ Aᵀ is diagonal, B * Bᵀ is diagonal, so B has orthogonal rows.
+Since B is invertible, all rows are nonzero.
+Let D₁ = diag(‖row_i B‖), then Q = D₁⁻¹ * B is orthogonal and B = D₁ * Q.
+Hence A = B * D⁻¹ = D₁ * Q * D⁻¹ = D₁ * Q * D₂ (D₂ = D⁻¹ is diagonal).
 -/
 
 open Matrix
@@ -44,169 +40,196 @@ noncomputable section
 
 namespace Chapter2Exercise23_2
 
-variable {n : Type*} [Fintype n] [DecidableEq n]
+variable {d : Type*} [Fintype d] [DecidableEq d]
 
 set_option linter.unusedSectionVars false
 
-/--
-A matrix is orthogonal if its transpose equals its inverse,
-equivalently Qᵀ * Q = I.
+/-!
+## Helper: Invertible diagonal matrix with positive entries
 -/
-def IsOrthogonal (Q : Matrix n n ℝ) : Prop :=
-  Qᵀ * Q = 1
 
-/--
-Basic properties of orthogonal matrices.
+/-- A diagonal matrix with strictly positive entries is invertible. -/
+lemma isUnit_diagonal_of_pos (f : d → ℝ) (hf : ∀ i, 0 < f i) :
+    IsUnit (diagonal f : Matrix d d ℝ) := by
+  rw [Matrix.isUnit_iff_isUnit_det, Matrix.det_diagonal]
+  exact isUnit_iff_ne_zero.mpr (Finset.prod_pos (fun i _ => hf i)).ne'
+
+/-!
+## Helper: D * Dᵀ = diagonal σ when D = diagonal(√σ)
 -/
-lemma isOrthogonal_iff (Q : Matrix n n ℝ) :
-    IsOrthogonal Q ↔ Qᵀ * Q = 1 := by
-  rfl
 
-lemma isOrthogonal_det (Q : Matrix n n ℝ) (hQ : IsOrthogonal Q) :
-    Q.det = 1 ∨ Q.det = -1 := by
-  -- Q is orthogonal means Qᵀ * Q = I
-  -- Taking determinant: det(Qᵀ) * det(Q) = det(I) = 1
-  -- Since det(Qᵀ) = det(Q), we have (det(Q))² = 1
-  -- Therefore det(Q) = ±1
-  have h1 : (Qᵀ * Q).det = (1 : Matrix n n ℝ).det := by rw [hQ]
-  rw [det_mul, det_transpose] at h1
-  have h2 : Q.det * Q.det = 1 := by simpa using h1
-  have h3 : Q.det ^ 2 = 1 := by rw [sq]; exact h2
-  exact sq_eq_one_iff.mp h3
+/-- If D = diagonal(√σ) then D * Dᵀ = diagonal(σ) when σᵢ ≥ 0. -/
+lemma diag_sqrt_mul_transpose (σ : d → ℝ) (hσ : ∀ i, 0 ≤ σ i) :
+    (diagonal (fun i => Real.sqrt (σ i))) * (diagonal (fun i => Real.sqrt (σ i)))ᵀ =
+    diagonal σ := by
+  simp [Matrix.diagonal_transpose, Matrix.diagonal_mul_diagonal, Real.mul_self_sqrt, hσ]
 
-lemma isOrthogonal_inv (Q : Matrix n n ℝ) (hQ : IsOrthogonal Q) :
-    Q⁻¹ = Qᵀ := by
-  -- From Qᵀ * Q = I, we know Qᵀ is a left inverse of Q
-  -- Since Q is invertible (det(Q) = ±1 ≠ 0), left inverse = right inverse
-  -- Therefore Q⁻¹ = Qᵀ
-  apply Matrix.inv_eq_left_inv
-  exact hQ
+/-!
+## Helper: BBᵀ positive definite from invertibility of B
+-/
 
 /--
-If Sigma is diagonal with positive entries and A·Sigma·Aᵀ is also diagonal,
-then the rows of A satisfy a strong orthogonality constraint.
+An invertible real matrix B satisfies: B * Bᵀ is positive definite.
 -/
-lemma diagonal_sandwich_constraint
-    (A : Matrix n n ℝ)
-    (Sigma : Matrix n n ℝ)
-    (hSigma_diag : Sigma.IsDiag)
-    (hSigma_pos : ∀ i, 0 < Sigma i i)
-    (hASigmaAT_diag : (A * Sigma * Aᵀ).IsDiag) :
-    ∀ i j, i ≠ j → (∑ k, A i k * Sigma k k * A j k) = 0 := by
-  intros i j hij
-  -- Use that the result is 0 from diagonality
-  have h_diag : (A * Sigma * Aᵀ) i j = 0 := hASigmaAT_diag hij
-  -- Show that (A * Sigma * Aᵀ) i j = ∑ k, A i k * Sigma k k * A j k
-  suffices ∑ k, A i k * Sigma k k * A j k = (A * Sigma * Aᵀ) i j by rw [this, h_diag]
-  -- Expand matrix mult
-  simp only [Matrix.mul_apply, Matrix.transpose_apply]
+lemma posDef_mul_transpose_of_isUnit (B : Matrix d d ℝ) (hB : IsUnit B) :
+    (B * Bᵀ).PosDef := by
+  have hinj : Function.Injective (fun v => Matrix.vecMul v B) :=
+    Matrix.vecMul_injective_of_isUnit hB
+  have h := Matrix.PosDef.mul_conjTranspose_self B hinj
+  rwa [Matrix.conjTranspose_eq_transpose_of_trivial] at h
+
+/-!
+## Key Algebraic Lemma: Orthogonal Row Decomposition
+-/
+
+/--
+An invertible square real matrix B with BBᵀ diagonal decomposes as B = D₁ * Q
+where D₁ is diagonal and Q is orthogonal.
+-/
+lemma ortho_row_decomp
+    (B : Matrix d d ℝ)
+    (hB : IsUnit B)
+    (hOrthoRows : (B * Bᵀ).IsDiag) :
+    ∃ (D₁ : Matrix d d ℝ) (Q : Matrix d d ℝ),
+      D₁.IsDiag ∧
+      Q ∈ Matrix.orthogonalGroup d ℝ ∧
+      B = D₁ * Q := by
+  -- BBᵀ positive definite ⟹ diagonal entries are positive
+  have hBBt_posDef : (B * Bᵀ).PosDef := posDef_mul_transpose_of_isUnit B hB
+  -- rowSq i = (BBᵀ) i i > 0 (the squared norm of row i)
+  let rowSq : d → ℝ := fun i => (B * Bᵀ) i i
+  have hrowSq_pos : ∀ i, 0 < rowSq i := fun i => hBBt_posDef.diag_pos
+  -- D₁ = diagonal(√rowSq), invertible since rowSq i > 0
+  let D₁ : Matrix d d ℝ := diagonal (fun i => Real.sqrt (rowSq i))
+  have hD₁_diag : D₁.IsDiag := Matrix.isDiag_diagonal _
+  have hD₁_isUnit : IsUnit D₁ :=
+    isUnit_diagonal_of_pos _ (fun i => Real.sqrt_pos.mpr (hrowSq_pos i))
+  -- Q = D₁⁻¹ * B; then B = D₁ * Q
+  let Q : Matrix d d ℝ := D₁⁻¹ * B
+  have hB_eq : B = D₁ * Q := by
+    simp only [Q, ← Matrix.mul_assoc]
+    rw [Matrix.mul_nonsing_inv D₁ (hD₁_isUnit.map Matrix.detMonoidHom)]
+    exact (Matrix.one_mul B).symm
+  refine ⟨D₁, Q, hD₁_diag, ?_, hB_eq⟩
+  -- Show Q * Qᵀ = 1
+  rw [Matrix.mem_orthogonalGroup_iff]
+  simp only [Q]
+  -- Q * Qᵀ = D₁⁻¹ * B * (D₁⁻¹ * B)ᵀ
+  rw [Matrix.transpose_mul, Matrix.transpose_nonsing_inv,
+      ← Matrix.mul_assoc, Matrix.mul_assoc (D₁⁻¹) B]
+  -- Goal: D₁⁻¹ * (B * Bᵀ) * D₁⁻ᵀ = 1
+  -- BBᵀ = diagonal(rowSq) since BBᵀ is diagonal
+  have hBBt_eq_diag : B * Bᵀ = diagonal rowSq := by
+    rw [Matrix.isDiag_iff_diagonal_diag] at hOrthoRows
+    rw [← hOrthoRows]; rfl
+  rw [hBBt_eq_diag]
+  -- D₁ᵀ = D₁ (diagonal is symmetric), so D₁⁻ᵀ = D₁⁻¹
+  have hD₁t_inv : (D₁.transpose)⁻¹ = D₁⁻¹ := by
+    simp only [D₁, Matrix.diagonal_transpose]
+  rw [hD₁t_inv]
+  -- Goal: D₁⁻¹ * diagonal(rowSq) * D₁⁻¹ = 1
+  -- Step: explicitly compute D₁⁻¹ = diagonal(1/√rowSq)
+  have hD₁inv : D₁⁻¹ = diagonal (fun i => (Real.sqrt (rowSq i))⁻¹) := by
+    apply Matrix.inv_eq_right_inv
+    simp only [D₁, Matrix.diagonal_mul_diagonal]
+    ext i j
+    simp [Matrix.diagonal, Matrix.one_apply, mul_inv_cancel₀ (Real.sqrt_pos.mpr (hrowSq_pos i)).ne']
+  rw [hD₁inv, Matrix.diagonal_mul_diagonal, Matrix.diagonal_mul_diagonal, ← Matrix.diagonal_one]
   congr 1
-  ext k
-  congr 1
-  -- For diagonal Sigma: ∑_l A i l * Sigma l k = A i k * Sigma k k
-  rw [Finset.sum_eq_single k]
-  · intros l _ hlk
-    rw [hSigma_diag hlk, mul_zero]
-  · intro hk
-    exact absurd (Finset.mem_univ k) hk
+  ext i
+  have hsi : 0 < Real.sqrt (rowSq i) := Real.sqrt_pos.mpr (hrowSq_pos i)
+  have hsq : Real.sqrt (rowSq i) ^ 2 = rowSq i := Real.sq_sqrt (le_of_lt (hrowSq_pos i))
+  field_simp [hsi.ne']
+  linarith [hsq]
+
+/-!
+## Main Theorem: ICA Symmetry Decomposition
+-/
 
 /--
-Key lemma: If Sigma_z = Diag(σ₁, ..., σₙ) with positive σᵢ, and A·Sigma_z·Aᵀ is diagonal,
-then A can be written as D₁·Q·D₂ where Q is orthogonal and D₁, D₂ are diagonal.
+ICA Symmetry Theorem (Exercise 2.3.2):
+If A is an invertible d×d matrix and Σ = diagonal(σ) with σᵢ > 0,
+and A * Σ * Aᵀ is diagonal (uncorrelated components condition),
+then A = D₁ * Q * D₂ where Q is orthogonal and D₁, D₂ are diagonal.
 
-This is the core result showing symmetry breaking in ICA.
-
-## Proof Sketch (to be formalized):
-1. Define B = Sigma_z^(-1/2) * A * Sigma_z^(1/2) (requires matrix square root)
-2. Then B * Bᵀ = Sigma_z^(-1/2) * (A * Sigma_z * Aᵀ) * Sigma_z^(-1/2) is diagonal
-3. Since B * Bᵀ is symmetric and diagonal, we can write B * Bᵀ = Diag(λ)
-4. By spectral theorem, B = Q * Diag(√λ) for some orthogonal Q (requires spectral/polar decomposition)
-5. Substitute back: A = Sigma_z^(1/2) * Q * Diag(√λ) * Sigma_z^(-1/2)
-                       = (Sigma_z^(1/2)) * Q * (Diag(√λ) * Sigma_z^(-1/2))
-                       = D₁ * Q * D₂
-
-This requires:
-- Matrix square root for positive definite diagonal matrices (not yet in Mathlib)
-- Polar decomposition or singular value decomposition (not yet in Mathlib)
-- OR a direct proof using the weighted orthogonality from diagonal_sandwich_constraint
-
-Mathlib currently has the spectral theorem for Hermitian matrices, but not yet
-the full machinery needed for this proof. This is a known gap being actively developed.
+This shows that the only matrices preserving the "uncorrelated components"
+property of a diagonal covariance are products of diagonal matrices and
+orthogonal matrices — confirming the symmetry structure of ICA.
 -/
-theorem uncorrelated_transform_decomposition
-    (A : Matrix n n ℝ)
-    (Sigma_z : Matrix n n ℝ)
-    (hA_inv : IsUnit A.det)
-    (hSigma_z_diag : Sigma_z.IsDiag)
-    (hSigma_z_pos : ∀ i, 0 < Sigma_z i i)
-    (hASigmaAT_diag : (A * Sigma_z * Aᵀ).IsDiag) :
-    ∃ (D₁ D₂ : Matrix n n ℝ) (Q : Matrix n n ℝ),
-      D₁.IsDiag ∧ D₂.IsDiag ∧ IsOrthogonal Q ∧ A = D₁ * Q * D₂ := by
-  sorry
+theorem ica_symmetry_decomposition
+    (A : Matrix d d ℝ)
+    (σ : d → ℝ)
+    (hA : IsUnit A)
+    (hσ : ∀ i, 0 < σ i)
+    (hUncorr : (A * diagonal σ * Aᵀ).IsDiag) :
+    ∃ (D₁ D₂ : Matrix d d ℝ) (Q : Matrix d d ℝ),
+      D₁.IsDiag ∧
+      D₂.IsDiag ∧
+      Q ∈ Matrix.orthogonalGroup d ℝ ∧
+      A = D₁ * Q * D₂ := by
+  -- Step 1: D = diagonal(√σ) is invertible
+  let D : Matrix d d ℝ := diagonal (fun i => Real.sqrt (σ i))
+  have hD_isUnit : IsUnit D :=
+    isUnit_diagonal_of_pos _ (fun i => Real.sqrt_pos.mpr (hσ i))
+  -- Step 2: B = A * D is invertible
+  let B : Matrix d d ℝ := A * D
+  have hB : IsUnit B := hA.mul hD_isUnit
+  -- Step 3: B * Bᵀ = A * Σ * Aᵀ
+  have hBBt_eq : B * Bᵀ = A * diagonal σ * Aᵀ := by
+    -- B * Bᵀ = (A*D) * (A*D)ᵀ = A * (D * Dᵀ) * Aᵀ = A * Σ * Aᵀ
+    have hD2 : D * Dᵀ = diagonal σ := diag_sqrt_mul_transpose σ (fun i => le_of_lt (hσ i))
+    calc B * Bᵀ
+        = (A * D) * (A * D)ᵀ           := rfl
+      _ = (A * D) * (Dᵀ * Aᵀ)         := by rw [Matrix.transpose_mul]
+      _ = A * (D * Dᵀ) * Aᵀ           := by rw [← Matrix.mul_assoc, Matrix.mul_assoc A]
+      _ = A * diagonal σ * Aᵀ          := by rw [hD2]
+  -- Step 4: B has orthogonal rows (B * Bᵀ is diagonal)
+  have hBOrtho : (B * Bᵀ).IsDiag := hBBt_eq ▸ hUncorr
+  -- Step 5: Decompose B = D₁ * Q with D₁ diagonal and Q orthogonal
+  obtain ⟨D₁, Q, hD₁_diag, hQ_ortho, hB_decomp⟩ := ortho_row_decomp B hB hBOrtho
+  -- Step 6: D₂ = D⁻¹ is diagonal
+  let D₂ : Matrix d d ℝ := D⁻¹
+  have hD₂_diag : D₂.IsDiag := by
+    simp only [D₂, D, Matrix.inv_diagonal]
+    exact Matrix.isDiag_diagonal _
+  -- Step 7: A = D₁ * Q * D₂
+  have hA_decomp : A = D₁ * Q * D₂ := by
+    have hD_D₂ : D * D₂ = 1 := Matrix.mul_nonsing_inv D (hD_isUnit.map Matrix.detMonoidHom)
+    calc A = A * 1         := (mul_one A).symm
+      _ = A * (D * D₂)     := by rw [hD_D₂]
+      _ = (A * D) * D₂     := by rw [← Matrix.mul_assoc]
+      _ = B * D₂           := rfl
+      _ = (D₁ * Q) * D₂   := by rw [hB_decomp]
+  exact ⟨D₁, D₂, Q, hD₁_diag, hD₂_diag, hQ_ortho, hA_decomp⟩
+
+/-!
+## Corollary: Statistical interpretation
+-/
 
 /--
-Corollary: The decomposition reduces GL(n) symmetry to the product of
-diagonal matrices (scalings) and orthogonal matrices (rotations/reflections).
+Corollary: Under the ICA model, any invertible A that preserves the
+uncorrelated component structure decomposes as D₁ Q D₂ with Q orthogonal
+and D₁, D₂ diagonal. This restricts the symmetry group to scale × rotation × scale.
 -/
-theorem symmetry_reduction
-    (A : Matrix n n ℝ)
-    (Sigma_z : Matrix n n ℝ)
-    (hA_inv : IsUnit A.det)
-    (hSigma_z_diag : Sigma_z.IsDiag)
-    (hSigma_z_pos : ∀ i, 0 < Sigma_z i i)
-    (hASigmaAT_diag : (A * Sigma_z * Aᵀ).IsDiag) :
-    ∃ (scalings rotations : Set (Matrix n n ℝ)),
-      (∀ D ∈ scalings, D.IsDiag) ∧
-      (∀ Q ∈ rotations, IsOrthogonal Q) ∧
-      A ∈ {M | ∃ D₁ ∈ scalings, ∃ Q ∈ rotations, ∃ D₂ ∈ scalings, M = D₁ * Q * D₂} := by
-  -- Get the decomposition from the main theorem
-  obtain ⟨D₁, D₂, Q, hD₁_diag, hD₂_diag, hQ_orth, hA_decomp⟩ :=
-    uncorrelated_transform_decomposition A Sigma_z hA_inv hSigma_z_diag hSigma_z_pos hASigmaAT_diag
-  -- Define the sets
-  use {M | M.IsDiag}, {M | IsOrthogonal M}
-  refine ⟨fun D hD => hD, fun Q hQ => hQ, ?_⟩
-  -- Show A is in the decomposed set
-  simp only [Set.mem_setOf_eq]
-  exact ⟨D₁, hD₁_diag, Q, hQ_orth, D₂, hD₂_diag, hA_decomp⟩
-
-/--
-Application to ICA: When z has independent components with positive variance,
-Cov(z) is diagonal. If A transforms z to Az with uncorrelated components,
-then Cov(Az) = A·Cov(z)·Aᵀ is also diagonal.
-The theorem shows A must have the special form D₁·Q·D₂.
-
-This explains why ICA can recover independent components up to:
-1. Permutation (absorbed into Q)
-2. Scaling (the D₁, D₂ factors)
-3. Sign flips (det(Q) = ±1)
-
-but NOT arbitrary linear transformations (which would be full GL(n)).
--/
-theorem ica_symmetry_breaking
-    (Sigma_z : Matrix n n ℝ)
-    (hSigma_z_diag : Sigma_z.IsDiag)
-    (hSigma_z_pos : ∀ i, 0 < Sigma_z i i)
-    (A : Matrix n n ℝ)
-    (hA : IsUnit A.det)
-    (hDiag : (A * Sigma_z * Aᵀ).IsDiag) :
-    ∃ (D₁ D₂ : Matrix n n ℝ) (Q : Matrix n n ℝ),
-      D₁.IsDiag ∧ D₂.IsDiag ∧ IsOrthogonal Q ∧ A = D₁ * Q * D₂ := by
-  exact uncorrelated_transform_decomposition A Sigma_z hA hSigma_z_diag hSigma_z_pos hDiag
-
-/--
-The group of transformations preserving uncorrelated structure is significantly
-smaller than GL(n): it's the product of the diagonal group D(n) × O(n) × D(n),
-not the full general linear group GL(n).
-
-This is the mathematical expression of "symmetry breaking" in ICA.
--/
-theorem symmetry_group_reduction
-    (Sigma_z : Matrix n n ℝ)
-    (hSigma_z_diag : Sigma_z.IsDiag)
-    (hSigma_z_pos : ∀ i, 0 < Sigma_z i i) :
-    {A : Matrix n n ℝ | IsUnit A.det ∧ (A * Sigma_z * Aᵀ).IsDiag} ⊆
-    {M | ∃ (D₁ D₂ Q : Matrix n n ℝ), D₁.IsDiag ∧ D₂.IsDiag ∧ IsOrthogonal Q ∧ M = D₁ * Q * D₂} := by
-  intro A ⟨hA_inv, hA_diag⟩
-  exact ica_symmetry_breaking Sigma_z hSigma_z_diag hSigma_z_pos A hA_inv hA_diag
+theorem ica_symmetry_group_restriction
+    (A : Matrix d d ℝ)
+    (σ : d → ℝ)
+    (hA : IsUnit A)
+    (hσ : ∀ i, 0 < σ i)
+    (hUncorr : (A * diagonal σ * Aᵀ).IsDiag) :
+    ∃ (Q : Matrix d d ℝ),
+      Q ∈ Matrix.orthogonalGroup d ℝ ∧
+      ∃ (d₁ d₂ : d → ℝ),
+        A = diagonal d₁ * Q * diagonal d₂ := by
+  obtain ⟨D₁, D₂, Q, hD₁_diag, hD₂_diag, hQ_ortho, hA_decomp⟩ :=
+    ica_symmetry_decomposition A σ hA hσ hUncorr
+  -- D₁ and D₂ are diagonal matrices, so D₁ = diagonal D₁.diag
+  rw [Matrix.isDiag_iff_diagonal_diag] at hD₁_diag hD₂_diag
+  -- Use D₁.diag and D₂.diag as the diagonal vectors
+  refine ⟨Q, hQ_ortho, D₁.diag, D₂.diag, ?_⟩
+  rw [hA_decomp, ← hD₁_diag, ← hD₂_diag]
+  simp [Matrix.diag_diagonal]
 
 end Chapter2Exercise23_2
+
+end
