@@ -1,84 +1,105 @@
 # 第2章 练习2.2 形式化报告
 
-## 习题内容 (Exercise 2.2: Gaussian Rotational Invariance)
+## 习题内容
 
-**原题** (来自 `deep-representation-learning-book/chapters/chapter2/classic-models.tex`):
+**来源**: `deep-representation-learning-book/chapters/chapter2/classic-models.tex`, Exercise 2.2
 
-设 $\vz \sim \mathcal{N}(\mathbf{0}, \sigma^2 \mathbf{I})$ 是高斯随机变量，每个分量的方差为 $\sigma^2$。证明：对于任意正交矩阵 $\mathbf{Q}$ (即 $\mathbf{Q}^\top \mathbf{Q} = \mathbf{I}$)，随机变量 $\mathbf{Q}\vz$ 与 $\vz$ 同分布。
+**原题**:
 
-提示：回忆高斯概率密度函数的公式，以及随机变量线性变换的密度公式。
+> Let $\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \sigma^2 \mathbf{I})$ be a Gaussian random variable with independent components, each with variance $\sigma^2$. Prove that for any orthogonal matrix $\mathbf{Q}$ (i.e., $\mathbf{Q}^\top \mathbf{Q} = \mathbf{I}$), the random variable $\mathbf{Q}\mathbf{z}$ is distributed identically to $\mathbf{z}$.
 
-## 形式化结果
+## Lean 4 形式化
 
-### 文件位置
-- Lean代码: `lean_formalization/Chapter2/2_2/Chapter2_Exercise2_2.lean`
+**文件**: `lean_formalization/Chapter2/2_2/Chapter2_Exercise2_2.lean`
 
-### 主要定理
+**状态**: ✅ 完成 (0 sorries)
+
+### 定义
 
 ```lean
+-- 正交矩阵：Q^T Q = I
 def IsOrthogonal (Q : Matrix (Fin d) (Fin d) ℝ) : Prop :=
   Qᵀ * Q = 1
 
-def gaussianDensity (σ : ℝ) (x : Fin d → ℝ) : ℝ :=
-  (2 * π * σ^2) ^ (-(d : ℝ) / 2) * exp (-‖x‖^2 / (2 * σ^2))
+-- 欧氏范数平方（通过 dot product 定义，而非 sup norm）
+def euclidNormSq (x : Fin d → ℝ) : ℝ := x ⬝ᵥ x
 
-theorem gaussian_rotational_invariance (σ : ℝ) (hσ : σ > 0)
-    {Q : Matrix (Fin d) (Fin d) ℝ} (hQ : IsOrthogonal Q) :
-    ∀ x : Fin d → ℝ,
-      gaussianDensity σ (Q.mulVec x) = gaussianDensity σ x
+-- 各向同性高斯密度：f(x) = (2πσ²)^(-d/2) · exp(-‖x‖²/(2σ²))
+def gaussianDensity (σ : ℝ) (x : Fin d → ℝ) : ℝ :=
+  (2 * π * σ ^ 2) ^ (-(d : ℝ) / 2) * exp (-euclidNormSq x / (2 * σ ^ 2))
 ```
 
 ### 核心引理
 
-1. **正交矩阵保持范数** (`orthogonal_preserves_norm`):
-   $\|Q\mathbf{x}\| = \|\mathbf{x}\|$，当 $Q$ 为正交矩阵时
-   - 状态: ⚠️ sorry (待完成)
+**引理 1**：正交矩阵保持欧氏范数平方
 
-2. **正交矩阵行列式绝对值为1** (`orthogonal_det_abs_one`):
-   $|\det(Q)| = 1$，当 $Q$ 为正交矩阵时
-   - 状态: ⚠️ sorry (待完成)
+```lean
+theorem orthogonal_preserves_euclidNormSq {Q : Matrix (Fin d) (Fin d) ℝ}
+    (hQ : IsOrthogonal Q) (x : Fin d → ℝ) :
+    euclidNormSq (Q.mulVec x) = euclidNormSq x
+```
 
-## 形式化证明思路
+**引理 2**：正交矩阵的行列式绝对值为 1
 
-### 1. 密度函数定义
-多元高斯分布 $\mathcal{N}(\mathbf{0}, \sigma^2 \mathbf{I})$ 的概率密度函数：
-$$f(\mathbf{x}) = \frac{1}{(2\pi\sigma^2)^{d/2}} \exp\left(-\frac{\|\mathbf{x}\|^2}{2\sigma^2}\right)$$
+```lean
+theorem orthogonal_det_abs_one {Q : Matrix (Fin d) (Fin d) ℝ}
+    (hQ : IsOrthogonal Q) : |Q.det| = 1
+```
 
-### 2. 线性变换下的密度变换
-对于线性变换 $\mathbf{y} = \mathbf{Q}\mathbf{x}$，有：
-$$f_{\mathbf{Y}}(\mathbf{y}) = f_{\mathbf{X}}(\mathbf{Q}^{-1}\mathbf{y}) \cdot |\det(\mathbf{Q}^{-1})|$$
+### 主定理
 
-### 3. 正交矩阵性质
-- $\mathbf{Q}^{-1} = \mathbf{Q}^\top$
-- $\|\mathbf{Q}\mathbf{x}\| = \|\mathbf{x}\|$
-- $|\det(\mathbf{Q})| = 1$
+```lean
+theorem gaussian_rotational_invariance (σ : ℝ)
+    {Q : Matrix (Fin d) (Fin d) ℝ} (hQ : IsOrthogonal Q)
+    (x : Fin d → ℝ) :
+    gaussianDensity σ (Q.mulVec x) = gaussianDensity σ x
+```
 
-### 4. 结论
-由于上述性质：
-$$f_{\mathbf{Q}\vz}(\mathbf{y}) = f_{\vz}(\mathbf{Q}^{-1}\mathbf{y}) \cdot 1 = f_{\vz}(\mathbf{Q}^\top\mathbf{y}) = f_{\vz}(\mathbf{y})$$
+## 证明策略
 
-因此 $\mathbf{Q}\vz \sim \vz$，即两者同分布。
+### 引理 1：正交矩阵保持欧氏范数平方
 
-## 形式化状态
+目标：`(Q.mulVec x) ⬝ᵥ (Q.mulVec x) = x ⬝ᵥ x`
 
-| 组件 | 状态 |
-|------|------|
-| 正交矩阵定义 | ✅ 完成 |
-| 高斯密度函数定义 | ✅ 完成 |
-| 正交矩阵保持范数引理 | ⚠️ sorry (待完成) |
-| 正交矩阵行列式引理 | ⚠️ sorry (待完成) |
-| 旋转不变性主定理 | ✅ 完成 |
+利用矩阵转置和 dot product 的关系：
 
-## 待完成项
+$$
+(Q\mathbf{x})^\top (Q\mathbf{x}) = \mathbf{x}^\top Q^\top Q \mathbf{x} = \mathbf{x}^\top I \mathbf{x} = \mathbf{x}^\top \mathbf{x}
+$$
 
-1. 完成 `orthogonal_preserves_norm` 的证明
-2. 完成 `orthogonal_det_abs_one` 的证明
+Lean 中的证明链：
+
+| 步骤 | Mathlib 引理 | 作用 |
+|------|-------------|------|
+| 1 | `Matrix.dotProduct_mulVec` | 将右侧的 `Q.mulVec x` 提出：`(Qx) ⬝ᵥ (Qx) = vecMul (Qx) Q ⬝ᵥ x` |
+| 2 | `congr 1` | 只需证 `vecMul (Q.mulVec x) Q = x` |
+| 3 | `Q = Qᵀᵀ` + `Matrix.vecMul_transpose` | 将 `vecMul v Q` 化为 `Qᵀ.mulVec v` |
+| 4 | `Matrix.mulVec_mulVec` | 合并为 `(Qᵀ * Qᵀᵀ).mulVec x` |
+| 5 | `Matrix.transpose_transpose` + `hQ` + `Matrix.one_mulVec` | 用 `Qᵀ Q = I` 收尾 |
+
+### 引理 2：行列式绝对值为 1
+
+由 $Q^\top Q = I$ 取行列式：
+
+$$
+\det(Q^\top)\det(Q) = \det(I) = 1 \implies \det(Q)^2 = 1 \implies |\det(Q)| = 1
+$$
+
+Lean 中：`det_mul` + `det_transpose` 给出 `Q.det^2 = 1`，再由 `nlinarith` 推出 `|Q.det| = 1`。
+
+### 主定理
+
+`orthogonal_preserves_euclidNormSq` 直接给出 `euclidNormSq (Q.mulVec x) = euclidNormSq x`，从而 `gaussianDensity` 的参数相同，由 `simp only` 一步完成。
+
+## 关键设计决策
+
+**为何使用 `euclidNormSq` 而非 `‖x‖^2`？**
+
+在 Lean 4 中，`Fin d → ℝ` 上的默认范数 `‖x‖` 是 **sup norm**（∞-范数），而高斯密度需要的是 **欧氏范数**（2-范数）。因此定义 `euclidNormSq x := x ⬝ᵥ x`（dot product with itself），对应 $\sum_i x_i^2$，是唯一正确的选择。这也使得正交保范的证明可以直接通过矩阵运算完成，无需借助 `EuclideanSpace`。
 
 ## 数学意义
 
-这个定理表明：**高斯分布在正交变换（旋转）下是不变的**。这是多元统计分析中的一个基本性质，它说明了高斯分布的"球对称性"——无论坐标系如何旋转，高斯分布的形状保持不变。
-
-这个性质在以下方面有重要应用：
-- 主成分分析 (PCA)
-- 独立成分分析 (ICA)
-- 信号处理中的旋转不变性
+高斯分布在正交变换下不变，体现了各向同性高斯分布的**球对称性**：密度函数只依赖于 $\|\mathbf{x}\|^2$，而正交矩阵恰好保持欧氏范数，因此密度不变。这一性质是：
+- PCA（主成分分析）中坐标旋转合法性的基础
+- ICA（独立成分分析）中高斯分布不可识别性的根源（书中第2章讨论的核心）
+- 多元统计理论中"旋转等价性"的数学表达
