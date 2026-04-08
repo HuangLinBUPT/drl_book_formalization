@@ -6,8 +6,6 @@
 
 **非形式化陈述**：设 z 是零均值的随机向量，具有相互独立且正方差的分量 z_i（即 Cov(z) = Σ = diag(σ₁,...,σd)，σᵢ > 0）。对任意可逆方阵 A，若 Az 的各分量不相关（即 Cov(Az) 是对角矩阵），则 A 可以写成 A = D₁QD₂，其中 Q 是正交矩阵，D₁, D₂ 是对角矩阵。
 
-**书中原文**：
-> *"This links the 'independence' assumption in ICA to a 'symmetry breaking' effect, which only allows scale and rotational symmetries."*
 
 ## 数学背景
 

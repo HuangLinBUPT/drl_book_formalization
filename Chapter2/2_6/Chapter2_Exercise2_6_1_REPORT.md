@@ -175,17 +175,6 @@ propext, Classical.choice, Quot.sound
 | $P_u^\perp = I - uu^\top$（值域） | `sphere_tangent_projection_range` | ✅ |
 | $P_u^\perp = I - uu^\top$（恒等） | `sphere_tangent_projection_identity_on_tangent` | ✅ |
 
-## 与其他练习的对比
-
-| 维度 | 习题 2.6.1（球面切空间） | 习题 2.5.1（峰度加法性） |
-|------|--------------------------|--------------------------|
-| 数学领域 | 微分几何 / 内积空间 | 概率论 / 测度论 |
-| sorry 数 | 0 | 0 |
-| 辅助引理 | 1 个 | 5 个 |
-| 主定理数 | 7 个 | 1 个 |
-| 核心难点 | `starRingEnd ℝ` 化简 | 独立性的传递 |
-| Mathlib 关键模块 | `InnerProductSpace.Projection` | `Probability.Independence` |
-
 ## 总结
 
 **完成度**：100%（零 sorry）

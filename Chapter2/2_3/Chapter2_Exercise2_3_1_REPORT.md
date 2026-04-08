@@ -101,21 +101,3 @@ lake env lean Chapter2/2_3/Chapter2_Exercise2_3_1.lean
 ### 不可计算性
 `noncomputable section` 声明是必要的，因为矩阵逆和行列式在一般情况下不可计算。
 
-## 参考文献
-
-- **书籍**：深度表征学习，第2章，练习2.3
-- **相关理论**：独立成分分析（ICA）、字典学习
-- **Mathlib 模块**：
-  - `Mathlib.Data.Matrix.Basic`
-  - `Mathlib.LinearAlgebra.Matrix.NonsingularInverse`
-  - `Mathlib.LinearAlgebra.Matrix.Determinant`
-
-## 后续工作
-
-完成练习2.3的计划：
-- **第2部分**：形式化 Az 具有不相关分量时 A 的特征刻画
-- 证明 A 必须具有 D₁QD₂ 的形式（对角矩阵 × 正交矩阵 × 对角矩阵）
-- 这将需要形式化：
-  - 随机变量和协方差
-  - 不相关分量条件
-  - 极分解定理
