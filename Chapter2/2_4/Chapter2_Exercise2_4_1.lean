@@ -1,133 +1,121 @@
-/-
-# Chapter 2, Exercise 2.4, Part 1: Whitening - Rank Bound
-
-## Informal Statement (from Deep Representation Learning book)
-
-Consider the model x = Uz, where U ∈ ℝ^(D×d) with D ≥ d is fixed and has rank d,
-and z is a zero-mean random variable. Let x₁, ..., xₙ denote i.i.d. observations
-from this model.
-
-**Part 1:** Show that the matrix X = [x₁, ..., xₙ] has rank no larger than d,
-and therefore there is an orthonormal matrix V ∈ ℝ^(D×d) so that X = VY,
-where Y ∈ ℝ^(d×N).
-
-## Reference
-Deep Representation Learning book, Chapter 2, Exercise 2.4, Part 1
-Book source: deep-representation-learning-book/chapters/chapter2/classic-models.tex:2282
-
-## Formalization Notes
-
-The key insight is that X = U·Z where Z = [z₁, ..., zₙ] is a (d×N) matrix.
-Since U has rank d and Z has d rows, rank(X) ≤ min(rank(U), d) = d.
-
-For the orthonormal decomposition, we use the fact that the column space of X
-has dimension ≤ d, so we can find an orthonormal basis V and express X = VY.
--/
-
 import Mathlib
 
+/-!
+# Chapter 2, Exercise 2.4.1: Rank bound and orthonormal factorization
+
+## Informal statement
+
+Consider the model `x = U z`, where `U ∈ ℝ^{D×d}` has rank `d`, and let
+`x₁, ..., x_N` be samples. Writing
+
+`X = [x₁, ..., x_N] = U Z`,
+
+show that `rank(X) ≤ d`, and therefore there exist a matrix `V ∈ ℝ^{D×d}`
+with orthonormal columns and a matrix `Y ∈ ℝ^{d×N}` such that `X = V Y`.
+
+This formalization proves the linear-algebraic core of the statement.
+See book Chapter 2, Exercise 2.4 (exercise:whitening), part 1.
+-/
+
 open Matrix
+open scoped BigOperators
 
-variable {R : Type*} [Field R]
+noncomputable section
 
-/-!
-## Main Theorem: Data Matrix Has Bounded Rank
+namespace Chapter2Exercise24_1
 
-Given a generative model x = Uz where U has rank d, the data matrix X
-formed by stacking observations has rank at most d.
--/
-
-/--
-The data matrix X = [x₁, ..., xₙ] where each xᵢ = U·zᵢ has rank at most rank(U).
-This is because X = U·Z where Z = [z₁, ..., zₙ].
--/
-theorem data_matrix_rank_bound
-  {D d N : ℕ}
-  (U : Matrix (Fin D) (Fin d) R)
-  (Z : Matrix (Fin d) (Fin N) R) :
-  (U * Z).rank ≤ U.rank := by
-  exact Matrix.rank_mul_le_left U Z
+private lemma euclidean_inner_eq_sum (D : ℕ) (x y : EuclideanSpace ℝ (Fin D)) :
+    @inner ℝ _ _ x y = ∑ i, x.ofLp i * y.ofLp i := by
+  have key := @PiLp.inner_apply ℝ _ (Fin D) _ (fun _ => ℝ) _ _ x y
+  simp only [RCLike.inner_apply] at key
+  rw [key]
+  congr 1
+  ext i
+  simp [mul_comm]
 
 /--
-If U has full column rank d (i.e., rank = d), then the data matrix X = U·Z
-has rank at most d.
+Exercise 2.4.1: if `X = U * Z` with `U : ℝ^{D×d}` then `rank X ≤ d`.
+Moreover, if `U` has full column rank `d`, then `X` admits a factorization
+`X = V * Y` where `Vᵀ * V = I`.
 -/
-theorem data_matrix_rank_le_d
-  {D d N : ℕ}
-  (_h_le : d ≤ D)
-  (U : Matrix (Fin D) (Fin d) R)
-  (h_rank : U.rank = d)
-  (Z : Matrix (Fin d) (Fin N) R) :
-  (U * Z).rank ≤ d := by
+theorem exercise_2_4_1
+    (D d N : ℕ)
+    (U : Matrix (Fin D) (Fin d) ℝ)
+    (Z : Matrix (Fin d) (Fin N) ℝ)
+    (hU : U.rank = d) :
+    let X : Matrix (Fin D) (Fin N) ℝ := U * Z
+    X.rank ≤ d ∧
+    ∃ (V : Matrix (Fin D) (Fin d) ℝ) (Y : Matrix (Fin d) (Fin N) ℝ),
+      Vᵀ * V = 1 ∧ X = V * Y := by
+  simp only []
+  let X : Matrix (Fin D) (Fin N) ℝ := U * Z
+  have h_rank : X.rank ≤ d := by
+    calc
+      X.rank = (U * Z).rank := rfl
+      _ ≤ U.rank := Matrix.rank_mul_le_left U Z
+      _ = d := hU
+
+  let W : Submodule ℝ (EuclideanSpace ℝ (Fin D)) := (Matrix.toEuclideanLin U).range
+  have hWfin : Module.finrank ℝ W = d := by
+    calc
+      Module.finrank ℝ W = U.rank := by
+        symm
+        simpa [W, Matrix.toEuclideanLin_eq_toLin_orthonormal] using
+          (Matrix.rank_eq_finrank_range_toLin U
+            (EuclideanSpace.basisFun (Fin D) ℝ).toBasis
+            (EuclideanSpace.basisFun (Fin d) ℝ).toBasis)
+      _ = d := hU
+
+  let bW0 : OrthonormalBasis (Fin (Module.finrank ℝ W)) ℝ W := stdOrthonormalBasis ℝ W
+  let bW : OrthonormalBasis (Fin d) ℝ W := bW0.reindex (finCongr hWfin)
+
+  let V : Matrix (Fin D) (Fin d) ℝ :=
+    Matrix.of fun i j => ((W.subtypeₗᵢ (bW j)).ofLp i)
+
+  have hV_orth : Vᵀ * V = 1 := by
+    ext j k
+    simp only [V, Matrix.transpose_apply, Matrix.mul_apply, Matrix.of_apply, Matrix.one_apply]
+    rw [← euclidean_inner_eq_sum D (W.subtypeₗᵢ (bW j)) (W.subtypeₗᵢ (bW k))]
+    have hinner :
+        @inner ℝ _ _ (W.subtypeₗᵢ (bW j)) (W.subtypeₗᵢ (bW k)) = if j = k then 1 else 0 := by
+      simpa using (orthonormal_iff_ite.mp bW.orthonormal) j k
+    simpa using hinner
+
+  let xW : Fin N → W := fun j =>
+    ⟨(Matrix.toEuclideanLin U) ((EuclideanSpace.equiv (Fin d) ℝ).symm (Z.col j)), by
+      exact ⟨((EuclideanSpace.equiv (Fin d) ℝ).symm (Z.col j)), rfl⟩⟩
+
+  let Y : Matrix (Fin d) (Fin N) ℝ := fun i j => (bW.repr (xW j)).ofLp i
+
+  have hxW_coord (i : Fin D) (j : Fin N) : ((W.subtypeₗᵢ (xW j)).ofLp i) = X i j := by
+    dsimp [xW, X]
+    change (U.mulVec (Z.col j)) i = (U * Z) i j
+    simp only [Matrix.mulVec, dotProduct, Matrix.col, Matrix.transpose_apply, Matrix.mul_apply]
+
+  have hsum (j : Fin N) : ∑ k, ((bW.repr (xW j)).ofLp k) • bW k = xW j := by
+    simpa using (bW.sum_repr (xW j))
+
+  have hcoord (i : Fin D) (j : Fin N) :
+      ∑ k, (bW.repr (xW j)).ofLp k * (W.subtypeₗᵢ (bW k)).ofLp i = X i j := by
+    have htmp := congrArg (fun w : W => ((W.subtypeₗᵢ w).ofLp i)) (hsum j)
+    calc
+      ∑ k, (bW.repr (xW j)).ofLp k * (W.subtypeₗᵢ (bW k)).ofLp i
+          = (W.subtypeₗᵢ (xW j)).ofLp i := by
+              simpa [smul_eq_mul] using htmp
+      _ = X i j := hxW_coord i j
+
+  refine ⟨h_rank, V, Y, hV_orth, ?_⟩
+  ext i j
   calc
-    (U * Z).rank ≤ U.rank := data_matrix_rank_bound U Z
-    _ = d := h_rank
+    X i j = ∑ k, (bW.repr (xW j)).ofLp k * (W.subtypeₗᵢ (bW k)).ofLp i := by
+      symm
+      exact hcoord i j
+    _ = ∑ k, V i k * Y k j := by
+      apply Finset.sum_congr rfl
+      intro k hk
+      simp only [V, Y, Matrix.of_apply]
+      rw [mul_comm]
+    _ = (V * Y) i j := by
+      rw [Matrix.mul_apply]
 
-/-!
-## Orthonormal Decomposition
-
-For any matrix X with rank ≤ d, we can find an orthonormal matrix V and
-a matrix Y such that X = VY. This is a consequence of the SVD or QR decomposition.
--/
-
-/--
-Structure to represent an orthonormal matrix.
-A matrix V is orthonormal if its columns form an orthonormal set.
--/
-structure OrthonormalMatrix (m n : ℕ) (R : Type*) [Field R] where
-  matrix : Matrix (Fin m) (Fin n) R
-  orthonormal : matrix.transpose * matrix = 1
-
-/--
-For any data matrix X = U·Z where U has rank d, there exists an orthonormal matrix V
-and a matrix Y such that X = V·Y.
-
-This uses the fact that the column space of X has dimension ≤ d, so we can find
-an orthonormal basis for this space (or its extension to dimension d).
-
-**Proof sketch:**
-1. The matrix X = U·Z has rank ≤ d, so its column space has dimension ≤ d.
-2. We can apply QR decomposition (or Gram-Schmidt orthogonalization) to the columns of X
-   to obtain an orthonormal basis V for the column space.
-3. Then X can be expressed as V·Y where Y contains the coordinates in this basis.
-
-Note: This requires QR decomposition theory which is not yet conveniently accessible
-in Mathlib for this formulation. This is a well-known result in linear algebra.
--/
-theorem exists_orthonormal_decomposition
-  {D d N : ℕ}
-  (h_le : d ≤ D)
-  (U : Matrix (Fin D) (Fin d) R)
-  (h_rank : U.rank = d)
-  (Z : Matrix (Fin d) (Fin N) R) :
-  ∃ (V : OrthonormalMatrix D d R) (Y : Matrix (Fin d) (Fin N) R),
-    U * Z = V.matrix * Y := by
-  sorry
-
-/-!
-## Combined Result
-
-Combining the rank bound and orthonormal decomposition gives us the complete
-statement of Exercise 2.4, Part 1.
--/
-
-/--
-**Exercise 2.4, Part 1 (Main Result):**
-
-Given the model x = Uz where U ∈ ℝ^(D×d) with D ≥ d has rank d,
-the data matrix X = [x₁, ..., xₙ] satisfies:
-1. rank(X) ≤ d
-2. There exists orthonormal V ∈ ℝ^(D×d) and Y ∈ ℝ^(d×N) such that X = VY
--/
-theorem exercise_2_4_part_1
-  {D d N : ℕ}
-  (h_le : d ≤ D)
-  (U : Matrix (Fin D) (Fin d) R)
-  (h_rank : U.rank = d)
-  (Z : Matrix (Fin d) (Fin N) R) :
-  (U * Z).rank ≤ d ∧
-  ∃ (V : OrthonormalMatrix D d R) (Y : Matrix (Fin d) (Fin N) R),
-    U * Z = V.matrix * Y := by
-  constructor
-  · exact data_matrix_rank_le_d h_le U h_rank Z
-  · exact exists_orthonormal_decomposition h_le U h_rank Z
+end Chapter2Exercise24_1
