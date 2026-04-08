@@ -5,7 +5,7 @@
 这个项目，尝试用 Lean4 形式化《深度表征学习》（[Deep Representation Learning](https://github.com/Ma-Lab-Berkeley/deep-representation-learning-book)）
 一书中的习题，并且完成证明。目的是，了解当前的 Lean 语言和 MathLib 引理库，对书中的数学知识能支持到什么程度。
 
-主要使用了 [lean-lsp-mcp](https://github.com/oOo0oOo/lean-lsp-mcp) 和 [lean4-skills](https://github.com/cameronfreer/lean4-skills)，以及 Claude Code。模型使用了 Opus-4.6，glm-5，minimax-m2.7等。
+主要使用了 [lean-lsp-mcp](https://github.com/oOo0oOo/lean-lsp-mcp) 和 [lean4-skills](https://github.com/cameronfreer/lean4-skills)，以及 Claude Code。模型使用了 Opus-4.6，glm-5，minimax-m2.7，gpt-4.1等。
 
 ## 当前进展
 
