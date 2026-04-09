@@ -5,11 +5,11 @@
 这个项目，尝试用 Lean4 形式化《深度表征学习》（[Deep Representation Learning](https://github.com/Ma-Lab-Berkeley/deep-representation-learning-book)）
 一书中的习题，并且完成证明。目的是，了解当前的 Lean 语言和 MathLib 引理库，对书中的数学知识能支持到什么程度。
 
-主要使用了 [lean-lsp-mcp](https://github.com/oOo0oOo/lean-lsp-mcp) 和 [lean4-skills](https://github.com/cameronfreer/lean4-skills)，以及 Claude Code。模型使用了 Opus-4.6，glm-5，minimax-m2.7，gpt-4.1等。
+主要使用了 [lean-lsp-mcp](https://github.com/oOo0oOo/lean-lsp-mcp) 和 [lean4-skills](https://github.com/cameronfreer/lean4-skills)，以及 Claude Code。模型使用了 Opus-4.6/4.5，glm-5，minimax-m2.7，gpt-5.4/4.1等。
 
 ## 当前进展
 
-**更新时间**: 2026-04-08（习题 2.4.1 完成，REPORT 已生成）
+**更新时间**: 2026-04-09（习题 2.4.2 完成，REPORT 已生成）
 
 ### 第2章：线性与独立结构
 
@@ -19,8 +19,8 @@
 | 2.2 | 高斯分布的旋转不变性 | ✅ 完成 | 0 |
 | 2.3.1 | GL(d) 对称性 | ✅ 完成 | 0 |
 | 2.3.2 | ICA 对称性约简（对角分解） | ✅ 完成 | 0 |
-| 2.4.1 | Whitening：秩界限定理与正交分解 $X = VY$ | ✅ 完成（REPORT 已生成） | 0 |
-| 2.4.2 | Whitening：白化矩阵性质 | 🔄 接近完成 | 1 |
+| 2.4.1 | Whitening：秩界限定理与正交分解 $X = VY$ | ✅ 完成| 0 |
+| 2.4.2 | Whitening：白化矩阵存在性与单位经验协方差 | 🔄 未严格证明| 0 |
 | 2.4.3 | Whitening：SVD 与正交恢复 | 🔄 接近完成 | 3 |
 | 2.5.1 | 峰度加法性：kurt(X+Y) = kurt(X) + kurt(Y) | ✅ 完成 | 0 |
 | 2.5.2 | 峰度齐次性：kurt(αX) = α⁴·kurt(X) | ✅ 完成 | 0 |
@@ -37,7 +37,7 @@
 | 2.8.3.2 | 矩阵平方根刻画（Part 3.2）：$Q^\top X = (X^\top X)^{1/2}$ | ✅ 完成 | 0 |
 | 2.8.3.3 | SVD 投影结论（Part 3.3）：$UV^\top = \operatorname{proj}_{O(d)}(X)$ | ✅ 完成 | 0 |
 
-**总体进展**: 21 个练习，19 个完全完成，2 个接近完成（共 4 个 sorries 待解决）
+**总体进展**: 21 个练习，20 个完全完成，1 个接近完成（共 3 个 sorries 待解决）
 
 ### 第3-5章
 
